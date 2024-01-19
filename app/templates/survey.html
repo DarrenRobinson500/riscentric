@@ -1,0 +1,29 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Survey</h1>
+
+<form method="POST">
+{% csrf_token %}
+   <table class="table" style="text-align: center">
+     <tr>
+       <th style="text-align: left">Question</th>
+       <th>Response</th>
+     </tr>
+     {% for question in question_set.questions %}
+     <tr>
+          <td style="text-align: left">{{ question }}</td>
+          <td>
+            <input type="radio" id="yes" name="{{question.id}}" value="yes">
+            <label for="yes">Yes</label><br>
+            <input type="radio" id="no" name="{{question.id}}" value="no">
+            <label for="no">No</label><br>
+          </td>
+     </tr>
+     {% endfor %}
+   </table>
+  <button type="submit" class="btn btn-yak">Submit</button>
+</form>
+
+
+{% endblock %}

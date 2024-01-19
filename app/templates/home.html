@@ -1,4 +1,14 @@
 {% extends 'base.html'%}
 {% block content %}
-Home
+<h1>Home</h1>
+
+{% for response in responses %}
+    <b>{{ response }}</b><br>
+    {% for response_ind in response.response_inds %}
+        {{ response_ind.question }}:
+        {{ response_ind.answer_text }}<br>
+    {% endfor %}
+<br>
+{% endfor %}
+
 {% endblock %}

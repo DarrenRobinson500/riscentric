@@ -1,5 +1,16 @@
 from pathlib import Path
 
+def read_file(text):
+    file = open("SECRET_KEYS.txt")
+    data = file.readlines()
+    file.close()
+    for line in data:
+        parts = line.strip().split(" ")
+        if parts[0] == text:
+            return parts[1]
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-nm9_2g9t=^mdu%$30+kyi02ie#9u9l&f^0wj_72v5@u(6y%i-='
+SECRET_KEY = read_file("secret_key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -60,12 +71,15 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+DB_PASSWORD = read_file("db_password")
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'riscentric',
+        'USER': 'postgres',
+        'PASSWORD': DB_PASSWORD,
+        'HOST': 'riscentric.c10sm4osu84m.ap-southeast-2.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
