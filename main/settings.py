@@ -25,7 +25,7 @@ SECRET_KEY = read_file("secret_key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['54.79.27.18',]
+ALLOWED_HOSTS = ['54.79.27.18', '127.0.0.1',]
 
 
 # Application definition

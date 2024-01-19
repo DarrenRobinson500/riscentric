@@ -13,6 +13,13 @@ class Question(Model):
     question_set = ForeignKey(QuestionSet, null=True, blank=True, on_delete=CASCADE)
     question = TextField(null=True, blank=True)
     def __str__(self): return self.question
+    def prop_yes(self):
+        responses = ResponseInd.objects.filter(question=self)
+        responses_yes = responses.filter(answer_text="yes")
+        if len(responses) > 0:
+            return int(round(len(responses_yes) / len(responses), 2) * 100)
+        else:
+            return 0
 
 class Answer(Model):
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)

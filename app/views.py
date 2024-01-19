@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import *
 
 def home(request):
     responses = Response.objects.all()
-    context = {"responses": responses}
+    questions = Question.objects.all()
+    context = {"responses": responses, 'questions': questions}
     return render(request, "home.html", context)
 
 def survey(request):
@@ -18,6 +19,7 @@ def survey(request):
                 answer = value
                 response_ind = ResponseInd(question=question, answer_text=answer, response=response)
                 response_ind.save()
+        return redirect('home')
 
     context = {"question_set": question_set}
 

@@ -2,13 +2,40 @@
 {% block content %}
 <h1>Home</h1>
 
-{% for response in responses %}
-    <b>{{ response }}</b><br>
-    {% for response_ind in response.response_inds %}
-        {{ response_ind.question }}:
-        {{ response_ind.answer_text }}<br>
-    {% endfor %}
-<br>
-{% endfor %}
+<div class="row">
+    <div class="col-sm-3" style="background-color: #ffe5ea; padding: 10px; border: 4px solid white;">
+    <h3>Summary</h3>
+        {% for question in questions %}
+            <b>{{ question }}: </b>{{ question.prop_yes }}%<br>
+        {% endfor %}
+    </div>
+    <div class="col-sm-3" style="background-color: #ffe5ea; padding: 10px; border: 4px solid white;">
+        <h3>Responses</h3>
+        {% for response in responses %}
+            <b>{{ response }}</b><br>
+            {% for response_ind in response.response_inds %}
+                {{ response_ind.question }}:
+                {{ response_ind.answer_text }}<br>
+            {% endfor %}
+        <br>
+        {% endfor %}
+    </div>
+    <div class="col-sm-5" style="background-color: #ffe5ea; padding: 10px; border: 4px solid white;">
+        <h3>To do</h3>
+        <h4>Functionality</h4>
+        <ul>
+            <li>Different types of questions</li>
+            <li>Excel upload of questions</li>
+            <li>Excel download of responses</li>
+            <li>Categorisation of responses by area</li>
+        </ul>
+        <h4>Technical</h4>
+        <ul>
+            <li>Domain name</li>
+            <li>SSL</li>
+            <li>Static Files</li>
+        </ul>
+
+    </div>
 
 {% endblock %}
