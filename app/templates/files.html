@@ -1,0 +1,32 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h2>Files</h2>
+<a href="{% url 'upload' %}" class='btn btn-yak'>New File</a>
+<br><br>
+    <table class='table table-striped table-hover table-bordered'>
+    <tr><th>Name</th><th>Date</th><th>Type</th><th>Action</th><th>Delete</th></tr>
+    {% for item in list %}
+    <tr>
+        <td>
+            {% if item.document.url is not None %}
+                <a href="{{ item.document.url }}" target="_blank">{{item.name }}</a>
+            {% else %}
+                {{item.name }}
+            {% endif %}
+        </td>
+        <td>{{item.time_stamp|date:"j M Y (g:i)"}}</td>
+        <td>
+            {{ item.type }}
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+
+    </tr>
+    {% endfor %}
+</table>
+<br><br>
+
+{% endblock %}

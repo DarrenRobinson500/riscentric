@@ -37,4 +37,22 @@ class ResponseInd(Model):
     answer_text = TextField(null=True, blank=True)
     answer = ForeignKey(Answer, null=True, blank=True, on_delete=CASCADE)
 
-all_models = [QuestionSet, Question, Answer, Response]
+class File(Model):
+    TYPE_CHOICES = [
+        ("questions", "Risk Questions"),
+    ]
+
+    name = CharField(max_length=512)
+    time_stamp = DateTimeField(auto_now_add=True, null=True,blank=True)
+    last_update = DateTimeField(null=True,blank=True)
+    document = FileField(upload_to="files/", blank=True, null=True)
+    type = CharField(max_length=100, blank=True, null=True, choices=TYPE_CHOICES)
+
+    def __str__(self):
+        return self.name
+
+    def delete(self, *args, **kwargs):
+        self.document.delete()
+        super().delete(*args, **kwargs)
+
+all_models = [QuestionSet, Question, Answer, Response, File]

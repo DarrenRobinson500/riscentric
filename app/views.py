@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import *
+from .forms import *
 
 def home(request):
     responses = Response.objects.all()
@@ -24,3 +24,20 @@ def survey(request):
     context = {"question_set": question_set}
 
     return render(request, "survey.html", context)
+
+def files(request):
+    list = File.objects.all().order_by("name").order_by("-time_stamp")
+    context = {"list": list, }
+    return render(request, "files.html", context)
+
+def upload(request):
+    if request.method == "POST":
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_file = form.save()
+            new_file.type = "File for Upload"
+            new_file.save()
+            return redirect("files")
+    else:
+        form = FileForm()
+    return render(request, "upload.html", {"form": form})
