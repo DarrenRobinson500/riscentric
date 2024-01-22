@@ -4,8 +4,8 @@
 <h2>Files</h2>
 <a href="{% url 'file_upload' %}" class='btn btn-yak'>New File</a>
 <br><br>
-    <table class='table table-striped table-hover table-bordered'>
-    <tr><th>Name</th><th>Date</th><th>Type</th><th>Action</th><th>Delete</th></tr>
+    <table class='table table-hover table-bordered'>
+    <tr style="background-color: #ffe5ea;"><th>Name</th><th>Date</th><th>Type</th><th>Action</th><th>Delete</th></tr>
     {% for item in list %}
     <tr>
         <td>
