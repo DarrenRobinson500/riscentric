@@ -2,7 +2,7 @@
 {% block content %}
 
 <h2>Files</h2>
-<a href="{% url 'upload' %}" class='btn btn-yak'>New File</a>
+<a href="{% url 'file_upload' %}" class='btn btn-yak'>New File</a>
 <br><br>
     <table class='table table-striped table-hover table-bordered'>
     <tr><th>Name</th><th>Date</th><th>Type</th><th>Action</th><th>Delete</th></tr>
@@ -20,6 +20,7 @@
             {{ item.type }}
         </td>
         <td>
+            <a href="{% url 'file_view' item.id %}" class='btn btn-yak'>View</a>
         </td>
         <td>
         </td>

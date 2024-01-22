@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Create Survey Set from Excel</h1>
+<b>{{ question_set }}</b>
+
+<table class='table table-striped table-hover table-bordered'>
+    <tr><th>Question</th><th>Choices</th></tr>
+    {% for question, choices in questions %}
+    <tr>
+        <td>{{ question }}</td>
+        <td><ol>{% for choice in choices %}<li>{{ choice }}</li>{% endfor %}</ol></td>
+    </tr>
+    {% endfor %}
+</table>
+<a href="{% url 'file_to_db' id %}" class='btn btn-yak'>Save Question Set to Database</a>
+
+{% endblock %}

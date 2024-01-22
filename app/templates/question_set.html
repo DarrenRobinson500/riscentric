@@ -1,0 +1,19 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Question Set: {{ question_set.description }}</h1>
+
+<table class='table table-striped table-hover table-bordered'>
+    <tr><th>Question</th><th>Choices</th></tr>
+    {% for question in question_set.questions %}
+    <tr>
+        <td>{{ question.question }}</td>
+        <td><ol>{% for choice in question.choices_split %}<li>{{ choice }}</li>{% endfor %}</ol></td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="{% url 'survey' question_set.id %}" class='btn btn-yak'>Test Survey</a>
+
+
+{% endblock %}

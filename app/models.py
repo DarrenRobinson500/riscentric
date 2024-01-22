@@ -1,4 +1,5 @@
 from django.db.models import *
+from datetime import datetime, date, timedelta, time
 
 class QuestionSet(Model):
     description = TextField(null=True, blank=True)
@@ -12,7 +13,10 @@ class QuestionSet(Model):
 class Question(Model):
     question_set = ForeignKey(QuestionSet, null=True, blank=True, on_delete=CASCADE)
     question = TextField(null=True, blank=True)
-    def __str__(self): return self.question
+    choices = CharField(max_length=255, blank=True)
+    def __str__(self): return f"{self.question} [{self.question_set.description}]"
+    def choices_split(self):
+        return self.choices.split(',')
     def prop_yes(self):
         responses = ResponseInd.objects.filter(question=self)
         responses_yes = responses.filter(answer_text="yes")
