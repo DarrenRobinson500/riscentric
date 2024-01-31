@@ -4,12 +4,12 @@
 
 <table class='table table-hover table-bordered'>
     <tr style="background-color: #ffe5ea;"><th>Question Set</th><th>Questions</th></tr>
-    {% for item in companies %}
+    {% for question_set in question_sets %}
     <tr>
         <td>
-            <a href="{% url 'company' item.id %}">{{ item }}</a>
+            <a href="{% url 'question_set' question_set.id %}">{{ question_set.description }}</a>
         </td>
-        <td><ol>{% for question_set in item.question_sets %}<li>{{ question_set }}</li>{% endfor %}</ol></td>
+        <td><ol>{% for question in question_set.questions %}<li>{{ question.question }}</li>{% endfor %}</ol></td>
     </tr>
     {% endfor %}
 </table>

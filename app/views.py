@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
-from .forms import *
 import openpyxl as xl
 import boto3
 from tempfile import NamedTemporaryFile
 from django.conf import settings
+
+from .forms import *
+from .emails import *
 
 def files(request):
     list = File.objects.all().order_by("name").order_by("-time_stamp")
@@ -37,11 +39,30 @@ def load_spreadsheet_from_s3(id):
         workbook = xl.load_workbook(tmp.name)
     return workbook
 
-def get_set_and_questions(id):
+def file_to_db_employees(request, id):
     wb = load_spreadsheet_from_s3(id)
     sheet = wb.active
-    question_set = sheet.cell(1, 1).value
-    questions = []
+    name = sheet.cell(1, 1).value
+    company = Company(name=name)
+    company.save()
+    for row in range(3, sheet.max_row + 1):
+        firstname = sheet.cell(row, 1).value
+        surname = sheet.cell(row, 2).value
+        email = sheet.cell(row, 3).value
+        area = sheet.cell(row, 4).value
+        Person(company=company, firstname=firstname, surname=surname, email=email, area=area).save()
+    return redirect(f'company/{company.id}')
+
+def file_to_db_questions(request, id):
+    wb = load_spreadsheet_from_s3(id)
+    sheet = wb.active
+    name = sheet.cell(1, 1).value
+    existing = QuestionSet.objects.filter(name=name)
+    if len(existing) == 0:
+        question_set = QuestionSet(name=name, date=date.today())
+    else:
+        question_set = existing.first()
+    question_set.save()
     for row in range(2, sheet.max_row + 1):
         question = sheet.cell(row, 1).value
         if question:
@@ -53,31 +74,26 @@ def get_set_and_questions(id):
                 else:
                     choices.append(choice)
                     col += 1
-                print(row, col, choice)
-            questions.append((question, choices))
-    return question_set, questions
+            choices_string = ','.join(choices)
+            existing = Question.objects.filter(question_set=question_set, question=question)
+            if len(existing) == 0:
+                Question(question_set=question_set, question=question, choices=choices_string).save()
+    return redirect('home')
 
 def file_view(request, id):
     question_set, questions = get_set_and_questions(id)
     context = {"question_set": question_set, "questions": questions, 'id': id}
     return render(request, 'file_view.html', context)
 
-def file_to_db(request, id):
-    question_set_string, questions = get_set_and_questions(id)
-    question_set = QuestionSet(description=question_set_string, date=date.today())
-    question_set.save()
-    for question, choices in questions:
-        # choices = ['yes', 'no', 'maybe']
-        choices_string = ','.join(choices)
-        Question(question_set=question_set, question=question, choices=choices_string).save()
-    return redirect('home')
+def home(request, id):
+    companies = Company.objects.all()
+    context = {'companies': companies}
+    return render(request, "question_sets.html", context)
 
-def home(request):
-    responses = Response.objects.all()
-    questions = Question.objects.all()
-    question_sets = QuestionSet.objects.all()
-    context = {"responses": responses, 'questions': questions, 'question_sets': question_sets}
-    return render(request, "home.html", context)
+def company_view(request, id):
+    company = Company.objects.get(id=id)
+    context = {'company': company}
+    return render(request, "company_view.html", context)
 
 def question_set(request, id):
     question_set = QuestionSet.objects.get(id=id)
@@ -102,4 +118,18 @@ def survey(request, id):
 
     return render(request, "survey.html", context)
 
+def email(request):
+    context = {}
+    return render(request, "email.html", context)
 
+def email_send(request):
+    question_set = QuestionSet.objects.all().first()
+    context_email = {"question_set": question_set}
+    send_email_logic(context_email)
+    context = {}
+    return render(request, "email.html", context)
+
+def email_view(request):
+    question_set = QuestionSet.objects.all().first()
+    context = {"question_set": question_set}
+    return render(request, "email_template.html", context)

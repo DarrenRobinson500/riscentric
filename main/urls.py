@@ -8,13 +8,19 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", home, name="home"),
     path("home", home, name="home"),
+    path("company_view", company_view, name="company_view"),
     path("question_set/<id>", question_set, name="question_set"),
     path("survey/<id>", survey, name="survey"),
 
     path("files", files, name="files"),
     path("file_upload", file_upload, name="file_upload"),
-    path("file_view/<id>", file_view, name="file_view"),
-    path("file_to_db/<id>", file_to_db, name="file_to_db"),
+    # path("file_view/<id>", file_view, name="file_view"),
+    path("file_to_db_questions/<id>", file_to_db_questions, name="file_to_db_questions"),
+    path("file_to_db_employees/<id>", file_to_db_employees, name="file_to_db_employees"),
+
+    path("email", email, name="email"),
+    path("email_send", email_send, name="email_send"),
+    path("email_view", email_view, name="email_view"),
 ]
 
 if settings.DEBUG:

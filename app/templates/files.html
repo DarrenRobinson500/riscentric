@@ -20,7 +20,12 @@
             {{ item.type }}
         </td>
         <td>
-            <a href="{% url 'file_view' item.id %}" class='btn btn-yak'>View</a>
+            {% if item.type == "Questions" %}
+                <a href="{% url 'file_to_db_questions' item.id %}" class='btn btn-yak'>Load Questions</a>
+            {% endif %}
+            {% if item.type == "Employees" %}
+                <a href="{% url 'file_to_db_employees' item.id %}" class='btn btn-yak'>Load Employees</a>
+            {% endif %}
         </td>
         <td>
         </td>

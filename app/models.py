@@ -1,7 +1,18 @@
 from django.db.models import *
 from datetime import datetime, date, timedelta, time
 
+class Company(Model):
+    name = TextField(null=True, blank=True)
+
+class Person(Model):
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+    firstname = TextField(null=True, blank=True)
+    surname = TextField(null=True, blank=True)
+    email = EmailField(null=True, blank=True)
+    area = TextField(null=True, blank=True)
+
 class QuestionSet(Model):
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     description = TextField(null=True, blank=True)
     date = DateField(auto_now=False, null=True)
     class Meta:
@@ -14,6 +25,7 @@ class Question(Model):
     question_set = ForeignKey(QuestionSet, null=True, blank=True, on_delete=CASCADE)
     question = TextField(null=True, blank=True)
     choices = CharField(max_length=255, blank=True)
+    sent_date = DateField(auto_now=False, null=True)
     def __str__(self): return f"{self.question} [{self.question_set.description}]"
     def choices_split(self):
         return self.choices.split(',')
@@ -30,20 +42,22 @@ class Answer(Model):
     answer = TextField(null=True, blank=True)
     def __str__(self): return "[" + str(self.date) + "] " + self.description[0:50]
 
-class Response(Model):
-    time = DateTimeField(auto_now_add=True)
-    def __str__(self): return f"Response [{self.time.date()}]"
-    def response_inds(self): return ResponseInd.objects.filter(response=self)
+# class Response(Model):
+#     time = DateTimeField(auto_now_add=True)
+#     def __str__(self): return f"Response [{self.time.date()}]"
+#     def response_inds(self): return ResponseInd.objects.filter(response=self)
 
 class ResponseInd(Model):
-    response = ForeignKey(Response, null=True, blank=True, on_delete=CASCADE)
+    person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     answer_text = TextField(null=True, blank=True)
     answer = ForeignKey(Answer, null=True, blank=True, on_delete=CASCADE)
+    response_date = DateTimeField(auto_now_add=True)
 
 class File(Model):
     TYPE_CHOICES = [
-        ("questions", "Risk Questions"),
+        ("Questions", "Questions"),
+        ("Employees", "Employees"),
     ]
 
     name = CharField(max_length=512)
@@ -59,4 +73,4 @@ class File(Model):
         self.document.delete()
         super().delete(*args, **kwargs)
 
-all_models = [QuestionSet, Question, Answer, Response, File]
+all_models = [QuestionSet, Question, Answer, File, ResponseInd]
