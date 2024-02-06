@@ -1,0 +1,36 @@
+{% extends 'base.html'%}
+{% block content %}
+
+{% for question_set in company.question_sets %}
+<h1>{{ question_set.name }}</h1>
+
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: #ffe5ea;"><th>Question</th><th>Date Scheduled</th><th>Date Asked</th><th>Responses</th></tr>
+
+    {% for question in question_set.questions %}
+    <tr>
+        <td>
+            {{ question.question }}
+            <ul>
+                {% for choice in question.choices_split %}
+                <li>{{ choice }}</li>
+                {% endfor %}
+            </ul>
+
+        </td>
+        <td>
+            {{ question.schedule_date }}<br>
+            {% if not question.sent_date %}
+            <a class='btn btn-yak' href="{% url 'email_send' question.id %}">Send emails</a>
+            {% endif %}
+        </td>
+        <td>
+            {{ question.sent_date | default:"" }}
+        </td>
+        <td>[Add in response logic]</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endfor %}
+
+{% endblock %}

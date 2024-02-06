@@ -1,11 +1,14 @@
 <nav class="navbar navbar-light navbar-expand-xl" style="background-color: #ffc0cb;">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{% url 'home' %}">Riscentric</a>
-
+      {% if company %}
+    <a class="navbar-brand" href="{% url 'home' %}"><b>{{ company }}</b></a>
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="{% url 'people' %}">People</a></li>
+          <li class="nav-item"><a class="nav-link active" href="{% url 'questions' %}">Questions</a></li>
           <li class="nav-item"><a class="nav-link active" href="{% url 'files' %}">Files</a></li>
-          <li class="nav-item"><a class="nav-link active" href="{% url 'email' %}">Emails</a></li>
         </ul>
+      {% else %}
+        <a class="navbar-brand" href="{% url 'home' %}"><b>Riscentric</b></a>
+      {% endif %}
   </div>
 </nav>

@@ -6,7 +6,7 @@
 <br><br>
     <table class='table table-hover table-bordered'>
     <tr style="background-color: #ffe5ea;"><th>Name</th><th>Date</th><th>Type</th><th>Action</th><th>Delete</th></tr>
-    {% for item in list %}
+    {% for item in company.files %}
     <tr>
         <td>
             {% if item.document.url is not None %}

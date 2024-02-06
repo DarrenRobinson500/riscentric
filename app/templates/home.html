@@ -1,13 +1,13 @@
 {% extends 'base.html'%}
 {% block content %}
-<h1>Question Sets</h1>
+<h1>Companies</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: #ffe5ea;"><th>Question Set</th><th>Questions</th></tr>
+    <tr style="background-color: #ffe5ea;"><th>Company</th><th>Question Sets</th></tr>
     {% for item in companies %}
     <tr>
         <td>
-            <a href="{% url 'company' item.id %}">{{ item }}</a>
+            <a href="{% url 'set_current_company' item.id %}">{{ item }}</a>
         </td>
         <td><ol>{% for question_set in item.question_sets %}<li>{{ question_set }}</li>{% endfor %}</ol></td>
     </tr>

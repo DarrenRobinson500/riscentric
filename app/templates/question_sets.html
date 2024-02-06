@@ -7,7 +7,7 @@
     {% for question_set in question_sets %}
     <tr>
         <td>
-            <a href="{% url 'question_set' question_set.id %}">{{ question_set.description }}</a>
+            <a href="{% url 'question_set' question_set.id %}">{{ question_set.name }}</a>
         </td>
         <td><ol>{% for question in question_set.questions %}<li>{{ question.question }}</li>{% endfor %}</ol></td>
     </tr>

@@ -23,7 +23,7 @@
     <div class="col-sm-4" style="background-color: #ffe5ea; padding: 10px; border: 4px solid white;">
         <h2>Question Sets</h2>
         {% for question_set in question_sets %}
-            <p><b>{{ question_set.description }}</b></p>
+            <p><b>{{ question_set.name }}</b></p>
             <ol>
             {% for question in question_set.questions %}
                 <li>
