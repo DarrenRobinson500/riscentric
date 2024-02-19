@@ -10,7 +10,7 @@
     {% for question in question_set.questions %}
     <tr>
         <td>
-            {{ question.question }}
+            {{ question.question }} ({{ question.id }})
             <ul>
                 {% for choice in question.choices_split %}
                 <li>{{ choice }}</li>
@@ -22,12 +22,18 @@
             {{ question.schedule_date }}<br>
             {% if not question.sent_date %}
             <a class='btn btn-yak' href="{% url 'email_send' question.id %}">Send emails</a>
+            {% else %}
+            <a class='btn btn-yak' href="{% url 'email_send' question.id %}">Re-send emails</a>
             {% endif %}
         </td>
         <td>
             {{ question.sent_date | default:"" }}
         </td>
-        <td>[Add in response logic]</td>
+        <td>
+            {{ question.response_rate }}<br>
+            {% for answer, count, percentage in question.response_distribution %} {{ answer }}: {{ count }} ({{ percentage }}%)<br>{% endfor %}
+            <a class='btn btn-yak' href="{% url 'email_view' question.id %}">View email details</a>
+        </td>
     </tr>
     {% endfor %}
 </table>

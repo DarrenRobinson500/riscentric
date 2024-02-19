@@ -1,27 +1,18 @@
 from pathlib import Path
 import os
-
-def read_file(text):
-    file = open("SECRET_KEYS.txt")
-    data = file.readlines()
-    file.close()
-    for line in data:
-        parts = line.strip().split(" ")
-        if parts[0] == text:
-            return parts[1]
-
-
+from decouple import config
+from dotenv import load_dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = read_file("secret_key")
+SECRET_KEY = os.environ.get("secret_key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -75,17 +66,32 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 
 # Database
-DB_PASSWORD = read_file("db_password")
+# DB_PASSWORD = read_file("db_password")
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'riscentric',
+#         'USER': 'postgres',
+#         'PASSWORD': DB_PASSWORD,
+#         'HOST': 'riscentric.c10sm4osu84m.ap-southeast-2.rds.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
+
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'riscentric',
+        'NAME': 'railway',
         'USER': 'postgres',
         'PASSWORD': DB_PASSWORD,
-        'HOST': 'riscentric.c10sm4osu84m.ap-southeast-2.rds.amazonaws.com',
-        'PORT': '5432',
+        'HOST': 'roundhouse.proxy.rlwy.net',
+        'PORT': '28574',
     }
 }
+
+
+
 
 
 # Password validation
@@ -137,14 +143,14 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AWS_ACCESS_KEY_ID = read_file("AWS_ACCESS_KEY_ID")                  # new
-AWS_SECRET_ACCESS_KEY = read_file("AWS_SECRET_ACCESS_KEY")          # new
-AWS_STORAGE_BUCKET_NAME = 'riscentric'                               # new
-AWS_S3_SIGNATURE_NAME = 's3v4',
-AWS_S3_REGION_NAME = 'ap-southeast-2'                               # new
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL =  None
-AWS_S3_VERITY = True
+# AWS_ACCESS_KEY_ID = read_file("AWS_ACCESS_KEY_ID")                  # new
+# AWS_SECRET_ACCESS_KEY = read_file("AWS_SECRET_ACCESS_KEY")          # new
+# AWS_STORAGE_BUCKET_NAME = 'riscentric'                               # new
+# AWS_S3_SIGNATURE_NAME = 's3v4',
+# AWS_S3_REGION_NAME = 'ap-southeast-2'                               # new
+# AWS_S3_FILE_OVERWRITE = False
+# AWS_DEFAULT_ACL =  None
+# AWS_S3_VERITY = True
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # SMTP email settings
@@ -153,5 +159,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'darrenjamesspare@gmail.com'
-EMAIL_HOST_PASSWORD = read_file("APP_PASSWORD")
+EMAIL_HOST_PASSWORD = os.environ.get("APP_PASSWORD")
 # print(EMAIL_HOST_PASSWORD)

@@ -119,24 +119,22 @@ def people(request):
     context = {'company': general.company}
     return render(request, "people.html", context)
 
-def survey(request, id):
+def survey(request, email_id):
     general = General.objects.all().first()
-    question_set = QuestionSet.objects.get(id=id)
-    if request.method == "POST":
-        response = Response()
-        response.save()
-        for key, value in request.POST.items():
-            print(f"{key}: {value}")
-            if key != "csrfmiddlewaretoken":
-                question = Question.objects.filter(id=key).first()
-                answer = value
-                response_ind = ResponseInd(question=question, answer_text=answer, response=response)
-                response_ind.save()
-        return redirect('home')
-
-    context = {"question_set": question_set}
-
+    email = Email.objects.get(id=email_id)
+    person = email.person
+    question = email.question
+    print("Survey person:", person)
+    print("Survey question:", question)
+    context = {"email": email, 'company': general.company}
     return render(request, "survey.html", context)
+
+def survey_complete(request, email_id, answer_string):
+    email = Email.objects.get(id=email_id)
+    email.answer = answer_string
+    email.save()
+    context = {"email": email, 'company': email.person.company}
+    return render(request, "survey_complete.html", context)
 
 def email(request):
     general = General.objects.all().first()
@@ -144,15 +142,15 @@ def email(request):
     return render(request, "email.html", context)
 
 def email_send(request, id):
-    general = General.objects.all().first()
+    # general = General.objects.all().first()
     question = Question.objects.get(id=id)
-    send_email_logic(question, general.company.people())
-    person = general.company.people().first()
-    context = {'company': general.company, 'person': person, 'question': question}
+    person = question.question_set.company.people().first()
+    send_email_logic(question, question.question_set.company.people())
+    context = {'company': person.company, 'person': person, 'question': question}
     return render(request, "email_template.html", context)
 
-def email_view(request):
+def email_view(request, id):
     general = General.objects.all().first()
-    question_set = QuestionSet.objects.all().first()
-    context = {"question_set": question_set, 'company': general.company}
-    return render(request, "email_template.html", context)
+    question = Question.objects.get(id=id)
+    context = {"question": question, 'company': general.company}
+    return render(request, "email_view.html", context)

@@ -10,7 +10,8 @@ urlpatterns = [
     path("home", home, name="home"),
     path("set_current_company/<id>", set_current_company, name="set_current_company"),
     path("question_set/<id>", question_set, name="question_set"),
-    path("survey/<id>", survey, name="survey"),
+    path("survey/<email_id>", survey, name="survey"),
+    path("survey_complete/<email_id>/<answer_string>", survey_complete, name="survey_complete"),
     path("people", people, name="people"),
     path("questions", questions, name="questions"),
 
@@ -22,7 +23,7 @@ urlpatterns = [
 
     path("email", email, name="email"),
     path("email_send/<id>", email_send, name="email_send"),
-    path("email_view", email_view, name="email_view"),
+    path("email_view/<id>", email_view, name="email_view"),
 ]
 
 if settings.DEBUG:

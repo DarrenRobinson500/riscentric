@@ -1,29 +1,11 @@
 {% extends 'base.html'%}
 {% block content %}
 
-<h1>Survey</h1>
+<h1>{{ email.question.question }}</h1>
 
-<form method="POST">
-{% csrf_token %}
-   <table class="table">
-     <tr>
-       <th style="text-align: left">Question</th>
-       <th>Response</th>
-     </tr>
-     {% for question in question_set.questions %}
-     <tr>
-          <td style="text-align: left">{{ question.question }}</td>
-          <td>
-            {% for choice in question.choices_split %}
-                <input type="radio" id="{{ choice }}" name="{{question.id}}" value="{{ choice }}">
-                <label for="{{ choice }}">{{ choice | capfirst }}</label><br>
-            {% endfor %}
-          </td>
-     </tr>
-     {% endfor %}
-   </table>
-  <button type="submit" class="btn btn-yak">Submit</button>
-</form>
+    {% for choice in email.question.choices_split %}
+        <a href="{% url 'survey_complete' email.id choice %}" class='btn btn-yak'>{{ choice }}</a>
+    {% endfor %}
 
 
 {% endblock %}
