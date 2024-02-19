@@ -1,0 +1,19 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1>Emails: {{ question }}</h1>
+
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: #ffe5ea;">
+        <th>ID</th><th>Person</th><th>Email</th><th>Result</th><th>Date Sent</th><th>Answer</th></tr>
+{% for email in question.responses %}
+<tr>
+    <td>{{ email.id }}</td>
+    <td>{{ email.person }}</td>
+    <td>{{ email.person.email_address }}</td>
+    <td>{{ email.email_result }}</td>
+    <td>{{ email.email_date }}</td>
+    <td>{{ email.answer }}</td>
+</tr>
+{% endfor %}
+
+{% endblock %}

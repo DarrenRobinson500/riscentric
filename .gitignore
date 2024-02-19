@@ -2,3 +2,4 @@
 /app/migrations
 *.xlsx
 /static/admin
+.env

@@ -2,17 +2,21 @@ from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from datetime import *
+from .models import *
 
 def send_email_logic(question, people):
     subject = 'Subject'
     from_email = 'riscentric.com'
 
     for person in people:
-        to = person.email
+        to = person.email_address
 
         # render the HTML content using a template
-        context = {"question": question, "person": person}
-        html_content = render_to_string('email_template.html',context)
+        email = Email(person=person, question=question)
+        email.save()
+        context = {"email": email}
+        print("Email:", email)
+        html_content = render_to_string('email_template.html', context)
 
         # create a plain text version of the email
         text_content = strip_tags(html_content)
@@ -20,7 +24,7 @@ def send_email_logic(question, people):
         # create the email message
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         msg.attach_alternative(html_content, "text/html")
-        msg.send()
-        question.sent_date = datetime.today()
-        question.save()
+        result = msg.send()
+        email.email_result = result
+        email.save()
 
