@@ -127,18 +127,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# STATIC_URL = 'static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'app/static'),
-#     # os.path.join(BASE_DIR, 'ckeditor'),
-#     # os.path.join(BASE_DIR, 'ckeditor_uploader'),
-#
-#     # BASE_DIR / 'static',
-# ]
-
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'app/static'),
+    # os.path.join(BASE_DIR, 'ckeditor'),
+    # os.path.join(BASE_DIR, 'ckeditor_uploader'),
+
+    # BASE_DIR / 'static',
+]
+
+# STATIC_URL = 'static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 MEDIA_URLS ='/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -158,7 +158,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # AWS_S3_FILE_OVERWRITE = False
 # AWS_DEFAULT_ACL =  None
 # AWS_S3_VERITY = True
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # SMTP email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
