@@ -42,7 +42,11 @@ def load_spreadsheet_from_s3(id):
     return workbook
 
 def file_to_db_employees(request, id):
-    wb = load_spreadsheet_from_s3(id)
+    # wb = load_spreadsheet_from_s3(id)
+
+    file = File.objects.filter(id=id).first()
+    path = file.document.path
+    wb = xl.load_workbook(path)
     sheet = wb.active
     general = General.objects.all().first()
 
@@ -52,11 +56,14 @@ def file_to_db_employees(request, id):
         email = sheet.cell(row, 3).value
         area = sheet.cell(row, 4).value
         Person(company=general.company, firstname=firstname, surname=surname, email=email, area=area).save()
-    return redirect(f'home')
+    return redirect(f'people')
 
 def file_to_db_questions(request, id):
     general = General.objects.all().first()
-    wb = load_spreadsheet_from_s3(id)
+    # wb = load_spreadsheet_from_s3(id)
+    file = File.objects.filter(id=id).first()
+    path = file.document.path
+    wb = xl.load_workbook(path)
     sheet = wb.active
     name = sheet.cell(1, 1).value
     existing = QuestionSet.objects.filter(name=name)

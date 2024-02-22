@@ -19,7 +19,7 @@ class Person(Model):
     surname = TextField(null=True, blank=True)
     email_address = EmailField(null=True, blank=True)
     area = TextField(null=True, blank=True)
-    def __str__(self): return f"{self.firstname} {self.surname}"
+    def __str__(self): return f"{self.firstname} {self.surname} ({self.company})"
 
 class QuestionSet(Model):
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)

@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+
+    # 'cloudinary',
+    # 'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -168,3 +171,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'darrenjamesspare@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get("APP_PASSWORD")
 # print(EMAIL_HOST_PASSWORD)
+
+# Cloudinary Settings
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# CLOUDINARY_URL = os.environ.get("CLOUDINARY_URL")
