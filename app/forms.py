@@ -11,3 +11,13 @@ class FileForm(ModelForm):
             "document": FileInput(attrs={"class": "form-control", "placeholder": ""}
             ),
         }
+
+class LinkForm(ModelForm):
+    class Meta:
+        model = File
+        fields = ("type", "url")
+        widgets = {
+            "type": Select(attrs={"class": "form-control"}),
+            "url": TextInput(attrs={"class": "form-control", "placeholder": ""},
+            ),
+        }

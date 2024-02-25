@@ -96,6 +96,7 @@ class File(Model):
     time_stamp = DateTimeField(auto_now_add=True, null=True,blank=True)
     last_update = DateTimeField(null=True,blank=True)
     document = FileField(upload_to="files/", blank=True, null=True)
+    url = URLField(blank=True, null=True)
     type = CharField(max_length=100, blank=True, null=True, choices=TYPE_CHOICES)
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
 

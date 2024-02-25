@@ -3,14 +3,33 @@ import openpyxl as xl
 import boto3
 from tempfile import NamedTemporaryFile
 from django.conf import settings
+import io
+import pandas as pd
+# from office365.sharepoint.file import File
 
 from .forms import *
 from .emails import *
+from .excel import *
+from .df_formats import *
 
 def files(request):
     general = General.objects.all().first()
     context = {"company": general.company}
     return render(request, "files.html", context)
+
+def view_url(request, id):
+    general = General.objects.all().first()
+    file = File.objects.filter(id=id).first()
+    print("file.url", file.url)
+    data = df_from_link(file.url)
+
+    data = data.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+
+    context = {"company": general.company, 'data': data}
+    return render(request, "view_url.html", context)
+
+# def url_to_model()
+
 
 def file_upload(request):
     general = General.objects.all().first()
@@ -20,11 +39,26 @@ def file_upload(request):
             new_file = form.save()
             new_file.company = general.company
             new_file.save()
-            print("Saved:", new_file, general.company, new_file.company)
+            print("Saved File:", new_file, general.company, new_file.company)
             return redirect("files")
     else:
         form = FileForm()
     return render(request, "file_upload.html", {"form": form, 'company': general.company})
+
+def file_link(request):
+    general = General.objects.all().first()
+    if request.method == "POST":
+        form = LinkForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_file = form.save()
+            new_file.company = general.company
+            new_file.save()
+            print("Saved Link:", new_file, general.company, new_file.company)
+            return redirect("files")
+    else:
+        form = LinkForm()
+    return render(request, "file_link.html", {"form": form, 'company': general.company})
+
 
 def load_spreadsheet_from_s3(id):
     file = File.objects.filter(id=id).first()
@@ -121,8 +155,25 @@ def question_set(request, id):
     context = {'question_set': question_set, 'company': general.company}
     return render(request, "question_set.html", context)
 
+def get_spreadsheet_data(file):
+
+    # Replace with your OneDrive file URL
+    file_url = 'https://onedrive.com/yourfile.xlsx'
+
+    # Read the file into a pandas DataFrame
+    response = File.open_binary(ctx, file_url)
+    bytes_file_obj = io.BytesIO()
+    bytes_file_obj.write(response.content)
+    bytes_file_obj.seek(0)
+    df = pd.read_excel(bytes_file_obj)
+
+    print(df)
+
 def people(request):
+    print("Point A")
     general = General.objects.all().first()
+    spreadsheet_data = get_spreadsheet_data("https://1drv.ms/x/s!Apw4mhMkELavg-0qvRdYeLFDQnGLpQ?e=52qmns&nav=MTVfezA5QzBFQkNFLTRBNUYtNDQwMy05MTNFLTkxNEJGM0JBQjY0Rn0")
+
     context = {'company': general.company}
     return render(request, "people.html", context)
 
