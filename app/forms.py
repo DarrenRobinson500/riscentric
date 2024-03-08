@@ -1,6 +1,12 @@
 from django.forms import *
 from .models import *
 
+class NewCompanyForm(ModelForm):
+    class Meta:
+        model = Company
+        fields = ("name", )
+        widgets = {"name": TextInput(attrs={"class": "form-control", "placeholder": ""}),}
+
 class FileForm(ModelForm):
     class Meta:
         model = File
@@ -15,9 +21,8 @@ class FileForm(ModelForm):
 class LinkForm(ModelForm):
     class Meta:
         model = File
-        fields = ("type", "url")
+        fields = ("url", )
         widgets = {
-            "type": Select(attrs={"class": "form-control"}),
             "url": TextInput(attrs={"class": "form-control", "placeholder": ""},
             ),
         }

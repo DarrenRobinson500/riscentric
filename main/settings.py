@@ -67,30 +67,37 @@ TEMPLATES = [
 WSGI_APPLICATION = 'main.wsgi.application'
 
 
-# Database
-# DB_PASSWORD = read_file("db_password")
+
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'riscentric',
-#         'USER': 'postgres',
-#         'PASSWORD': DB_PASSWORD,
-#         'HOST': 'riscentric.c10sm4osu84m.ap-southeast-2.rds.amazonaws.com',
-#         'PORT': '5432',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
 
+# Database
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
+        'NAME': 'riscentric',
         'USER': 'postgres',
-        'PASSWORD': DB_PASSWORD,
-        'HOST': 'roundhouse.proxy.rlwy.net',
-        'PORT': '28574',
+        'PASSWORD': 'postgres',
+        'HOST': 'riscentric.c12aui88y3oh.ap-southeast-2.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
+# DB_PASSWORD = os.environ.get("DB_PASSWORD")
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'railway',
+#         'USER': 'postgres',
+#         'PASSWORD': DB_PASSWORD,
+#         'HOST': 'roundhouse.proxy.rlwy.net',
+#         'PORT': '28574',
+#     }
+# }
 
 
 
@@ -154,15 +161,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AWS_ACCESS_KEY_ID = read_file("AWS_ACCESS_KEY_ID")                  # new
-# AWS_SECRET_ACCESS_KEY = read_file("AWS_SECRET_ACCESS_KEY")          # new
-# AWS_STORAGE_BUCKET_NAME = 'riscentric'                               # new
-# AWS_S3_SIGNATURE_NAME = 's3v4',
-# AWS_S3_REGION_NAME = 'ap-southeast-2'                               # new
-# AWS_S3_FILE_OVERWRITE = False
-# AWS_DEFAULT_ACL =  None
-# AWS_S3_VERITY = True
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = 'riscentric2'                               # new
+AWS_S3_SIGNATURE_NAME = 's3v4',
+AWS_S3_REGION_NAME = 'ap-southeast-2'                               # new
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL =  None
+AWS_S3_VERITY = True
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # SMTP email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

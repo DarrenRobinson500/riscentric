@@ -4,15 +4,18 @@ from django.utils.html import strip_tags
 from datetime import *
 from .models import *
 
-def send_email_logic(question, people):
+def send_email_logic(ping):
     subject = 'Subject'
     from_email = 'riscentric.com'
 
-    for person in people:
+    for person_question in ping.person_questions():
+        if person_question.answer: continue
+        person = person_question.person
+        question = person_question.question
         to = person.email_address
 
         # render the HTML content using a template
-        email = Email(person=person, question=question)
+        email = Email(company=ping.company, ping=ping, person=person, question=question, person_question=person_question)
         email.save()
         context = {"email": email}
         print("Email:", email)

@@ -1,42 +1,24 @@
 {% extends 'base.html'%}
 {% block content %}
 
-{% for question_set in company.question_sets %}
-<h1>{{ question_set.name }}</h1>
+<h1>Question Library</h1>
 
-<table class='table table-hover table-bordered'>
-    <tr style="background-color: #ffe5ea;"><th>Question</th><th>Date Scheduled</th><th>Date Asked</th><th>Responses</th></tr>
-
-    {% for question in question_set.questions %}
+<table class='table table-striped table-hover table-bordered'>
+    <tr><th>Questions</th><th>Choices</th></tr>
+    {% for question in questions %}
     <tr>
+        <td>{{ question.question }}</td>
         <td>
-            {{ question.question }} ({{ question.id }})
             <ul>
                 {% for choice in question.choices_split %}
                 <li>{{ choice }}</li>
                 {% endfor %}
             </ul>
-
-        </td>
-        <td>
-            {{ question.schedule_date }}<br>
-            {% if not question.sent_date %}
-            <a class='btn btn-yak' href="{% url 'email_send' question.id %}">Send emails</a>
-            {% else %}
-            <a class='btn btn-yak' href="{% url 'email_send' question.id %}">Re-send emails</a>
-            {% endif %}
-        </td>
-        <td>
-            {{ question.sent_date | default:"" }}
-        </td>
-        <td>
-            {{ question.response_rate }}<br>
-            {% for answer, count, percentage in question.response_distribution %} {{ answer }}: {{ count }} ({{ percentage }}%)<br>{% endfor %}
-            <a class='btn btn-yak' href="{% url 'email_view' question.id %}">View email details</a>
         </td>
     </tr>
     {% endfor %}
 </table>
-{% endfor %}
+
+
 
 {% endblock %}

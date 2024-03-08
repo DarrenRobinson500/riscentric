@@ -1,7 +1,14 @@
 {% extends 'base.html'%}
 {% block content %}
-<h1>View URL</h1>
+<h1>Load Spreadsheet into Database - {{ company }}</h1>
+<a href="{{ file.url }}" target="_blank">{{ file.url }}</a>
 
-{{ data | safe }}
-
+{% for title, data_ss, data_db in data_set %}
+<h2>{{ title }}</h2>
+    <h3>Spreadsheet</h3>
+    {{ data_ss | safe }}
+    <h3>Database</h3>
+    {{ data_db | safe }}
+{% endfor %}
+<br><br>
 {% endblock %}

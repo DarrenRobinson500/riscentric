@@ -2,11 +2,13 @@ from django.db.models import *
 from datetime import datetime, date, timedelta, time
 
 class Company(Model):
-    name = TextField(null=True, blank=True)
+    name = CharField(max_length=255, null=True, blank=True)
+    icon = ImageField(null=True, blank=True, upload_to="images/")
     def __str__(self): return self.name
     def question_sets(self): return QuestionSet.objects.filter(company=self)
     def files(self): return File.objects.filter(company=self).order_by("name").order_by("-time_stamp")
     def people(self): return Person.objects.filter(company=self).order_by("surname")
+    def pings(self): return Ping.objects.filter(company=self).order_by("name")
 
 class General(Model):
     name = TextField(null=True, blank=True)
@@ -20,6 +22,7 @@ class Person(Model):
     email_address = EmailField(null=True, blank=True)
     area = TextField(null=True, blank=True)
     def __str__(self): return f"{self.firstname} {self.surname} ({self.company})"
+    def name(self): return f"{self.firstname} {self.surname}"
 
 class QuestionSet(Model):
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
@@ -32,12 +35,10 @@ class QuestionSet(Model):
     def questions(self): return Question.objects.filter(question_set=self).order_by("schedule_date")
 
 class Question(Model):
-    question_set = ForeignKey(QuestionSet, null=True, blank=True, on_delete=CASCADE)
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     question = TextField(null=True, blank=True)
     choices = CharField(max_length=255, blank=True)
-    schedule_date = DateField(auto_now=False, null=True)
-    sent_date = DateField(auto_now=False, null=True)
-    def __str__(self): return f"{self.question} [{self.question_set.name}]"
+    def __str__(self): return f"{self.company}: {self.question}"
     def choices_split(self):
         return self.choices.split(',')
     def response_rate(self):
@@ -45,7 +46,6 @@ class Question(Model):
         responses_received = len(Email.objects.filter(question=self, answer__isnull=False))
         if emails_sent == 0: return "No emails sent"
         return f"Response Rate: {int(responses_received / emails_sent * 100)}% ({responses_received} of {emails_sent})"
-
     def response_distribution(self):
         responses = len(Email.objects.filter(question=self, answer__isnull=False))
         answers = Email.objects.filter(question=self, answer__isnull=False).values('answer').annotate(count=Count('answer'))
@@ -59,20 +59,65 @@ class Question(Model):
     def responses(self):
         return Email.objects.filter(question=self)
 
-class Email(Model):
-    person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
-    question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
-    email_result = CharField(max_length=3, null=True, blank=True)
-    email_date = DateTimeField(auto_now_add=True)
-    answer = TextField(null=True, blank=True)
-    def __str__(self): return f"Email to {self.person} {self.email_date}"
-
 class Answer(Model):
     person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     answer = TextField(null=True, blank=True)
     response_date = DateTimeField(auto_now_add=True)
     def __str__(self): return f"Answer: {self.person} {self.question} => {self.answer}"
+
+class Ping(Model):
+    name = TextField(null=True, blank=True)
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+    def person_questions(self):
+        return Person_Question.objects.filter(ping=self)
+    def questions(self):
+        questions = set()
+        for person_question in self.person_questions():
+            questions.add(person_question.question)
+        return questions
+    def grouped_person_questions(self):
+        person_questions = self.person_questions()
+        result = []
+        for question in self.questions():
+            result.append((question, []))
+        for question in result:
+            for person_question in person_questions:
+                if question[0] == person_question.question:
+                    question[1].append(person_question)
+        print("Grouped person questions:", result)
+        return result
+    def emails(self):
+        return Email.objects.filter(ping=self)
+    def question_answer_no_response(self):
+        return Person_Question.objects.filter(ping=self, answer__isnull=True)
+
+class Person_Question(Model):
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+    ping = ForeignKey(Ping, null=True, blank=True, on_delete=CASCADE)
+    person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
+    question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
+    answer = TextField(null=True, blank=True)
+    def __str__(self): return f"{self.person.firstname} {self.person.surname} => {self.question.question}"
+    def emails(self): return Email.objects.filter(person_question=self)
+
+class Send(Model):
+    ping = ForeignKey(Ping, null=True, blank=True, on_delete=CASCADE)
+    number = IntegerField(null=True, blank=True)
+    person_question = ForeignKey(Person_Question, null=True, blank=True, on_delete=CASCADE)
+
+class Email(Model):
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+    ping = ForeignKey(Ping, null=True, blank=True, on_delete=CASCADE)
+    person_question = ForeignKey(Person_Question, null=True, blank=True, on_delete=CASCADE)
+    person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
+    question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
+    # send = ForeignKey(Send, null=True, blank=True, on_delete=CASCADE)
+    email_result = CharField(max_length=3, null=True, blank=True)
+    email_date = DateTimeField(auto_now_add=True)
+    answer = TextField(null=True, blank=True)
+    def __str__(self): return f"Email to {self.person} {self.email_date}"
+
 
 # class Response(Model):
 #     time = DateTimeField(auto_now_add=True)
@@ -107,4 +152,4 @@ class File(Model):
         self.document.delete()
         super().delete(*args, **kwargs)
 
-all_models = [QuestionSet, Question, Answer, File, Company, General, Person, Email]
+all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File]

@@ -3,15 +3,19 @@
 <h1>Companies</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: #ffe5ea;"><th>Company</th><th>Question Sets</th></tr>
-    {% for item in companies %}
+    <tr style="background-color: #ffe5ea;"><th>Company</th><th>Staff</th><th>Pings</th><th>Actions</th></tr>
+    {% for company in companies %}
     <tr>
-        <td>
-            <a href="{% url 'set_current_company' item.id %}">{{ item }}</a>
-        </td>
-        <td><ol>{% for question_set in item.question_sets %}<li>{{ question_set }}</li>{% endfor %}</ol></td>
+        <td><a href="{% url 'set_current_company' company.id %}">{{ company }}</a></td>
+        <td>{{ company.people | length }}</td>
+        <td>{% for ping in company.pings %}<a class='btn btn-yak btn-sm' style="margin-top: 5px; margin-left: 5px;" href="{% url 'ping' ping.id company.id %}">{{ ping.name }}</a>{% endfor %}</td>
+        <td><a href="{% url 'company_delete' company.id %}" class='btn btn-yak btn-sm'>Delete Company</a>
+</td>
     </tr>
+
     {% endfor %}
 </table>
+
+<a href="{% url 'company_new' %}" class='btn btn-yak' style="margin-top: 10px">New Company</a>
 
 {% endblock %}

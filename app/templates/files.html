@@ -2,7 +2,6 @@
 {% block content %}
 
 <h2>Files</h2>
-<a href="{% url 'file_upload' %}" class='btn btn-yak' style="margin-top: 10px">New File</a>
 <a href="{% url 'file_link' %}" class='btn btn-yak' style="margin-top: 10px">New Link</a>
 <br><br>
     <table class='table table-hover table-bordered'>
@@ -21,13 +20,7 @@
             {{ item.type }}
         </td>
         <td>
-            <a href="{% url 'view_url' item.id %}" class='btn btn-yak'>View</a>
-            {% if item.type == "Questions" %}
-                <a href="{% url 'file_to_db_questions' item.id %}" class='btn btn-yak'>Load Questions</a>
-            {% endif %}
-            {% if item.type == "Employees" %}
-                <a href="{% url 'file_to_db_employees' item.id %}" class='btn btn-yak'>Load Employees</a>
-            {% endif %}
+            <a href="{% url 'view_url' item.id %}" class='btn btn-yak'>Load into DB</a>
         </td>
         <td>
         </td>
