@@ -66,7 +66,7 @@ def company_delete(request, id):
 # ---------------------
 
 def download(request):
-    # if not request.user.is_authenticated: return redirect("login")
+    ## if not request.user.is_authenticated: return redirect("login")
 
     writer = ExcelWriter('Responses.xlsx', engine='xlsxwriter')
 
