@@ -6,6 +6,8 @@ from django.conf import settings
 import io
 import pandas as pd
 # from office365.sharepoint.file import File
+from pandas import ExcelWriter
+from django.http import HttpResponse
 
 from .forms import *
 from .emails import *
@@ -58,6 +60,42 @@ def company_delete(request, id):
     company = Company.objects.get(id=id)
     company.delete()
     return redirect('home')
+
+# ---------------------
+# ---- Utilities ------
+# ---------------------
+
+def download(request):
+    if not request.user.is_authenticated: return redirect("login")
+
+    writer = ExcelWriter('Responses.xlsx', engine='xlsxwriter')
+
+    model = Person_Question
+    print("Saving:", model)
+
+    data = model.objects.all()
+    df = pd.DataFrame(list(data.values()))
+
+    company = df.apply(get_company, axis=1)
+    ping = df.apply(get_ping, axis=1)
+    person = df.apply(get_person, axis=1)
+    question = df.apply(get_question, axis=1)
+    df = pd.concat([company, ping, person, question, df], axis=1)
+
+    today = datetime.today()
+    df.to_excel(writer, sheet_name=f'{today.date()}', index=False)
+    writer.close()
+
+    # Create an HttpResponse object with the Excel file
+    response = HttpResponse(open('Responses.xlsx', 'rb').read(), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Responses.xlsx"'
+
+    return response
+
+def get_company(row): return Company.objects.get(id=row['company_id']).name
+def get_ping(row): return Ping.objects.get(id=row['ping_id']).name
+def get_person(row): return Person.objects.get(id=row['person_id']).email_address
+def get_question(row): return Question.objects.get(id=row['question_id']).question
 
 
 # ---------------------

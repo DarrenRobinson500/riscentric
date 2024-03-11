@@ -20,6 +20,7 @@ urlpatterns = [
     path("ping/<id>", ping, name="ping"),
     path("ping/<id>/<company_id>", ping, name="ping"),
     path("ping_delete/<id>", ping_delete, name="ping_delete"),
+    path("download", download, name="download"),
 
     path("files", files, name="files"),
     path("file_upload", file_upload, name="file_upload"),
