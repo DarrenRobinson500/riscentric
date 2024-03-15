@@ -73,7 +73,9 @@ def download(request):
     model = Person_Question
     print("Saving:", model)
 
-    data = model.objects.all()
+    general = General.objects.all().first()
+
+    data = model.objects.filter(company=general.company)
     df = pd.DataFrame(list(data.values()))
 
     company = df.apply(get_company, axis=1)
@@ -92,7 +94,11 @@ def download(request):
 
     return response
 
-def get_company(row): return Company.objects.get(id=row['company_id']).name
+def get_company(row):
+    try:
+        return Company.objects.get(id=row['company_id']).name
+    except:
+        return ""
 def get_ping(row): return Ping.objects.get(id=row['ping_id']).name
 def get_person(row): return Person.objects.get(id=row['person_id']).email_address
 def get_question(row): return Question.objects.get(id=row['question_id']).question
