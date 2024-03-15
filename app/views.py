@@ -95,14 +95,17 @@ def download(request):
     return response
 
 def get_company(row):
-    try:
-        return Company.objects.get(id=row['company_id']).name
-    except:
-        return ""
-def get_ping(row): return Ping.objects.get(id=row['ping_id']).name
-def get_person(row): return Person.objects.get(id=row['person_id']).email_address
-def get_question(row): return Question.objects.get(id=row['question_id']).question
-
+    try: return Company.objects.get(id=row['company_id']).name
+    except: return ""
+def get_ping(row):
+    try: return Ping.objects.get(id=row['ping_id']).name
+    except: return ""
+def get_person(row):
+    try: return Person.objects.get(id=row['person_id']).email_address
+    except: return ""
+def get_question(row):
+    try: return Question.objects.get(id=row['question_id']).question
+    except: return ""
 
 # ---------------------
 # ---- People ------
