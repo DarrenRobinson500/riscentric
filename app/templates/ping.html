@@ -34,7 +34,8 @@
 </table>
 
 <a class='btn btn-yak' href="{% url 'email_send' ping.id %}" style="background-color: {{ company.colour }};">Send emails</a>
-<a class='btn btn-yak' href="{% url 'email_view' ping.id %}" style="background-color: {{ company.colour }};">View email details</a>
+<a class='btn btn-yak' href="{% url 'email_view' ping.id False %}" style="background-color: {{ company.colour }};">View email details</a>
+<a class='btn btn-yak' href="{% url 'email_view' ping.id True %}" style="background-color: {{ company.colour }};">Update Responses</a>
 
 
 {% endblock %}

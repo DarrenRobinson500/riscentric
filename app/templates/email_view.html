@@ -2,12 +2,11 @@
 {% block content %}
 <h1>Emails: '{{ ping.name | capfirst }}'</h1>
 <a class='btn btn-yak btn-sm' href="{% url 'ping' ping.id %}" style="background-color: {{ company.colour }};">Back to '{{ ping.name | capfirst }}'</a>
-
 {% for question in ping.questions %}
 <h3>{{ question.question }}</h3>
     <table class='table table-hover table-bordered'>
         <tr style="background-color: {{ company.colour }};">
-            <th>ID</th><th>Person</th><th>Email</th><th>Result</th><th>Date Sent</th><th>Answer</th><th>Provide Answer</th>
+            <th>ID</th><th>Person</th><th>Email</th><th>Result</th><th>Date Sent</th><th>Answer</th>{% if admin == True %}<th>Provide Answer</th>{% endif %}
         </tr>
             {% for email in question.responses %}
                 <tr>
@@ -17,11 +16,13 @@
                     <td>{{ email.email_result }}</td>
                     <td>{{ email.email_date }}</td>
                     <td>{% if email.answer %}{{ email.answer }}{% endif %}</td>
+                    {% if admin == True %}
                     <td>
                         {% for choice in email.question.choices_split %}
                             <a href="{% url 'survey_admin' email.id choice %}" class='btn btn-sm' style="background-color: {{ company.colour }};">{{ choice }}</a>
                         {% endfor %}
                     </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
     </table>

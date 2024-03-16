@@ -203,10 +203,12 @@ def email_send(request, id):
     context = {'company': ping.company, 'person': person_question.person, 'question': person_question.question, 'email': person_question.emails().first()}
     return render(request, "email_template.html", context)
 
-def email_view(request, id):
+def email_view(request, id, admin):
+    if admin == "True": admin = True
+    else: admin = False
     general = General.objects.all().first()
     ping = Ping.objects.get(id=id)
-    context = {"ping": ping, 'company': general.company}
+    context = {"ping": ping, 'company': general.company, "admin": admin}
     return render(request, "email_view.html", context)
 
 
