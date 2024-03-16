@@ -101,7 +101,7 @@ class Person_Question(Model):
     person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     answer = TextField(null=True, blank=True)
-    def __str__(self): return f"{self.person.firstname} {self.person.surname} => {self.question.question}"
+    def __str__(self): return f"{self.person.firstname} => {self.question.question}"
     def emails(self): return Email.objects.filter(person_question=self)
 
 class Send(Model):
