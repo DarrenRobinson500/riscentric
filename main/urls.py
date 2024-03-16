@@ -14,6 +14,7 @@ urlpatterns = [
     # path("question_set/<id>", question_set, name="question_set"),
     path("survey/<email_id>", survey, name="survey"),
     path("survey_complete/<email_id>/<answer_string>", survey_complete, name="survey_complete"),
+    path("survey_admin/<email_id>/<answer_string>", survey_admin, name="survey_admin"),
     path("people", people, name="people"),
     path("questions", questions, name="questions"),
     path("pings", pings, name="pings"),

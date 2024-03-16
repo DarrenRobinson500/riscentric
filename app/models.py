@@ -1,5 +1,6 @@
 from django.db.models import *
 from datetime import datetime, date, timedelta, time
+from collections import Counter
 
 class Company(Model):
     name = CharField(max_length=255, null=True, blank=True)
@@ -60,7 +61,7 @@ class Question(Model):
         answer_array = sorted(answer_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[0: 10]
         return answer_array
     def responses(self):
-        return Email.objects.filter(question=self)
+        return Email.objects.filter(question=self).order_by('id')
 
 class Answer(Model):
     person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
@@ -90,10 +91,50 @@ class Ping(Model):
                     question[1].append(person_question)
         print("Grouped person questions:", result)
         return result
+
+
+    def grouped_person_questions_answers(self):
+        person_questions = self.person_questions()
+        result = []
+        for question in self.questions():
+            result.append((question, [], [], []))
+            # question, person_question, answers, answer counts
+        for question in result:
+            for person_question in person_questions:
+                if question[0] == person_question.question:
+                    question[1].append(person_question)
+                    question[2].append(person_question.answer)
+            counter = Counter(question[2])
+            # print("\nCounter")
+            # print(counter)
+            for item, count in counter.items():
+                question[3].append((item, count))
+        print("Grouped person questions:", result)
+        return result
+
+    def response_distribution(self):
+        responses = len(Email.objects.filter(question=self, answer__isnull=False))
+        answers = Email.objects.filter(question=self, answer__isnull=False).values('answer').annotate(count=Count('answer'))
+        print(answers)
+        answer_array = []
+        for answer in answers:
+            percentage = int(answer['count'] / responses * 100)
+            answer_array.append((answer['answer'], answer['count'], percentage))
+        answer_array = sorted(answer_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[0: 10]
+        return answer_array
+
+
+
     def emails(self):
         return Email.objects.filter(ping=self)
     def question_answer_no_response(self):
         return Person_Question.objects.filter(ping=self, answer__isnull=True)
+    def response_rate(self):
+        person_questions = self.person_questions()
+        demoninator = len(person_questions)
+        numerator = len(self.person_questions().filter(answer__isnull=False))
+        if demoninator == 0: return "No questions asked"
+        return f"Response Rate: {int(numerator / demoninator * 100)}% ({numerator} of {demoninator})"
 
 class Person_Question(Model):
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)

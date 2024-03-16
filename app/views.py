@@ -176,6 +176,16 @@ def survey_complete(request, email_id, answer_string):
     context = {"email": email, 'company': email.person.company}
     return render(request, "survey_complete.html", context)
 
+def survey_admin(request, email_id, answer_string):
+    email = Email.objects.get(id=email_id)
+    email.answer = answer_string
+    email.save()
+    email.person_question.answer = answer_string
+    email.person_question.save()
+
+    context = {"email": email, 'company': email.person.company}
+    return redirect('email_view', email.ping.id)
+
 # -----------------
 # ---- Emails ------
 # -----------------

@@ -2,14 +2,15 @@
 {% block content %}
 
 <h1>{{ ping.name | capfirst }}</h1>
+<h3>{{ ping.response_rate }}</h3>
 
 <table class='table table-hover table-bordered'>
     <tr style="background-color: {{ company.colour }};"><th>Question</th><th>People</th><th>Responses</th></tr>
 
-    {% for question, person_questions in ping.grouped_person_questions %}
+    {% for question, person_questions, answers, answer_count in ping.grouped_person_questions_answers %}
     <tr>
         <td>
-            {{ question.question }}
+            {{ question.question }}:
             <ul>
                 {% for choice in question.choices_split %}
                     <li>{{ choice }}</li>
@@ -19,14 +20,14 @@
         <td>
             <ul>
                 {% for person_question in person_questions %}
-                    <li>{{ person_question.person.name }} {% if person_question.answer %}(Responded){% endif %}</li>
+                    <li>{{ person_question.person.name | capfirst}} {% if person_question.answer %}(Responded){% endif %}</li>
                 {% endfor %}
             </ul>
         </td>
-
         <td>
-            {{ question.response_rate }}<br>
-            {% for answer, count, percentage in question.response_distribution %} {{ answer }}: {{ count }} ({{ percentage }}%)<br>{% endfor %}
+            {% for item, count in answer_count %}
+                {{ item }}: {{ count }}<br>
+            {% endfor %}
         </td>
     </tr>
     {% endfor %}

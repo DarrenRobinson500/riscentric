@@ -7,7 +7,7 @@
     <tr style="background-color: {{ company.colour }};"><th>Name</th><th>Person/Questions</th><th>Actions</th></tr>
     {% for ping in pings %}
     <tr>
-        <td><a href="{% url 'ping' ping.id %}">{{ ping.name }}</a></td>
+        <td><a href="{% url 'ping' ping.id %}">{{ ping.name | capfirst }}</a></td>
         <td>
             <ul>
                 {% for person_question in ping.person_questions %}
@@ -17,7 +17,7 @@
         </td>
         <td>
             <a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'ping' ping.id %}">Select Ping</a><br><br>
-            <a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'ping_delete' ping.id %}">Delete Ping</a>
+            <a class='btn btn-sm btn-danger' href="{% url 'ping_delete' ping.id %}">Delete Ping</a>
         </td>
     </tr>
     {% endfor %}

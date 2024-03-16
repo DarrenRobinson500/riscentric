@@ -7,7 +7,7 @@
 <h3>{{ question.question }}</h3>
     <table class='table table-hover table-bordered'>
         <tr style="background-color: {{ company.colour }};">
-            <th>ID</th><th>Person</th><th>Email</th><th>Result</th><th>Date Sent</th><th>Answer</th>
+            <th>ID</th><th>Person</th><th>Email</th><th>Result</th><th>Date Sent</th><th>Answer</th><th>Provide Answer</th>
         </tr>
             {% for email in question.responses %}
                 <tr>
@@ -16,7 +16,12 @@
                     <td>{{ email.person.email_address }}</td>
                     <td>{{ email.email_result }}</td>
                     <td>{{ email.email_date }}</td>
-                    <td>{{ email.answer }}</td>
+                    <td>{% if email.answer %}{{ email.answer }}{% endif %}</td>
+                    <td>
+                        {% for choice in email.question.choices_split %}
+                            <a href="{% url 'survey_admin' email.id choice %}" class='btn btn-sm' style="background-color: {{ company.colour }};">{{ choice }}</a>
+                        {% endfor %}
+                    </td>
                 </tr>
             {% endfor %}
     </table>

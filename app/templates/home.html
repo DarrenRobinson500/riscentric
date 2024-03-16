@@ -3,10 +3,11 @@
 <h1>Companies</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: {{ company.colour }};"><th>Company</th><th>Staff</th><th>Pings</th><th>Actions</th><th>Delete</th></tr>
+    <tr style="background-color: {{ company.colour }};"><th>Company</th><th>Logo and colour</th><th>Staff</th><th>Pings</th><th>Actions</th><th>Delete</th></tr>
     {% for comp in companies %}
     <tr>
         <td><a href="{% url 'set_current_company' comp.id %}">{{ comp }}</a></td>
+        <td>{% if comp.icon %}<img src="{{ comp.icon.url }}"  height="30">{% endif %}</td>
         <td>{{ comp.people | length }}</td>
         <td>{% for ping in comp.pings %}<a class='btn btn-yak btn-sm' style="margin-top: 5px; margin-left: 5px; background-color: {{ company.colour }};" href="{% url 'ping' ping.id comp.id %}">{{ ping.name }}</a>{% endfor %}</td>
         <td><a href="{% url 'set_current_company' comp.id %}" class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};">Select</a>
