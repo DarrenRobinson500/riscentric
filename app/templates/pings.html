@@ -4,7 +4,7 @@
 <h1>Pings</h1>
 
 <table class='table table-striped table-hover table-bordered'>
-    <tr><th>Name</th><th>Person/Questions</th><th>Actions</th></tr>
+    <tr style="background-color: {{ company.colour }};"><th>Name</th><th>Person/Questions</th><th>Actions</th></tr>
     {% for ping in pings %}
     <tr>
         <td><a href="{% url 'ping' ping.id %}">{{ ping.name }}</a></td>
@@ -16,13 +16,14 @@
             </ul>
         </td>
         <td>
-            <a class='btn btn-yak btn-sm' href="{% url 'ping_delete' ping.id %}">Delete Ping</a>
+            <a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'ping' ping.id %}">Select Ping</a><br><br>
+            <a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'ping_delete' ping.id %}">Delete Ping</a>
         </td>
     </tr>
     {% endfor %}
 </table>
 
-<a class='btn btn-yak btn-sm' href="{% url 'download' %}">Download</a>
+<a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'download' %}">Download</a>
 
 
 

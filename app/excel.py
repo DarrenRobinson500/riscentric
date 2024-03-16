@@ -31,7 +31,8 @@ def df_to_db_employee(df):
     general = General.objects.all().first()
     for index, row in df.iterrows():
         if not Person.objects.filter(company=general.company, email_address=row['email']).exists():
-            Person(company=general.company, firstname=row['first_name'], surname=row['surname'], email_address=row['email'], area=row['area']).save()
+            Person(company=general.company, firstname=row['first_name'], email_address=row['email'], area=row['area']).save()
+            # Person(company=general.company, firstname=row['first_name'], surname=row['surname'], email_address=row['email'], area=row['area']).save()
     existing_records = Person.objects.filter(company=general.company)
     for record in existing_records:
         # print("email in DB:", record.email_address)

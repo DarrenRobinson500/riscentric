@@ -19,10 +19,11 @@ from .df_formats import *
 # --------------------
 
 def home(request):
+    riscentric = Company.objects.filter(name="Riscentric").first()
     general = General.objects.all().first()
-    general.company = None
+    general.company = riscentric
     general.save()
-    companies = Company.objects.all().order_by("name")
+    companies = Company.objects.exclude(name="Riscentric").order_by("name")
     context = {'companies': companies, 'company': general.company}
     return render(request, "home.html", context)
 

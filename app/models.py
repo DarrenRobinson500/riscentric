@@ -4,10 +4,13 @@ from datetime import datetime, date, timedelta, time
 class Company(Model):
     name = CharField(max_length=255, null=True, blank=True)
     icon = ImageField(null=True, blank=True, upload_to="images/")
+    colour = CharField(max_length=10, null=True, blank=True, default="#000000")
+    colour_text = CharField(max_length=10, null=True, blank=True, default="#ffffff")
+
     def __str__(self): return self.name
     def question_sets(self): return QuestionSet.objects.filter(company=self)
     def files(self): return File.objects.filter(company=self).order_by("name").order_by("-time_stamp")
-    def people(self): return Person.objects.filter(company=self).order_by("surname")
+    def people(self): return Person.objects.filter(company=self).order_by("firstname")
     def pings(self): return Ping.objects.filter(company=self).order_by("name")
 
 class General(Model):
@@ -21,8 +24,8 @@ class Person(Model):
     surname = TextField(null=True, blank=True)
     email_address = EmailField(null=True, blank=True)
     area = TextField(null=True, blank=True)
-    def __str__(self): return f"{self.firstname} {self.surname} ({self.company})"
-    def name(self): return f"{self.firstname} {self.surname}"
+    def __str__(self): return f"{self.firstname} ({self.company})"
+    def name(self): return f"{self.firstname}"
 
 class QuestionSet(Model):
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)

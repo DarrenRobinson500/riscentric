@@ -2,10 +2,10 @@
 {% block content %}
 
 <h2>Files</h2>
-<a href="{% url 'file_link' %}" class='btn btn-yak' style="margin-top: 10px">New Link</a>
+<a href="{% url 'file_link' %}" class='btn btn-yak' style="margin-top: 10px; background-color: {{ company.colour }};">New Link</a>
 <br><br>
     <table class='table table-hover table-bordered'>
-    <tr style="background-color: #ffe5ea;"><th>Name</th><th>Date</th><th>Type</th><th>Action</th><th>Delete</th></tr>
+    <tr style="background-color: {{ company.colour }};"><th>Name</th><th>Date</th><th>Type</th><th>Action</th><th>Delete</th></tr>
     {% for item in company.files %}
     <tr>
         <td>
@@ -20,7 +20,7 @@
             {{ item.type }}
         </td>
         <td>
-            <a href="{% url 'view_url' item.id %}" class='btn btn-yak'>Load into DB</a>
+            <a href="{% url 'view_url' item.id %}" class='btn btn-yak' style="background-color: {{ company.colour }};">Load into DB</a>
         </td>
         <td>
         </td>

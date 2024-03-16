@@ -3,19 +3,20 @@
 <h1>Companies</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: #ffe5ea;"><th>Company</th><th>Staff</th><th>Pings</th><th>Actions</th></tr>
-    {% for company in companies %}
+    <tr style="background-color: {{ company.colour }};"><th>Company</th><th>Staff</th><th>Pings</th><th>Actions</th><th>Delete</th></tr>
+    {% for comp in companies %}
     <tr>
-        <td><a href="{% url 'set_current_company' company.id %}">{{ company }}</a></td>
-        <td>{{ company.people | length }}</td>
-        <td>{% for ping in company.pings %}<a class='btn btn-yak btn-sm' style="margin-top: 5px; margin-left: 5px;" href="{% url 'ping' ping.id company.id %}">{{ ping.name }}</a>{% endfor %}</td>
-        <td><a href="{% url 'company_delete' company.id %}" class='btn btn-yak btn-sm'>Delete Company</a>
+        <td><a href="{% url 'set_current_company' comp.id %}">{{ comp }}</a></td>
+        <td>{{ comp.people | length }}</td>
+        <td>{% for ping in comp.pings %}<a class='btn btn-yak btn-sm' style="margin-top: 5px; margin-left: 5px; background-color: {{ company.colour }};" href="{% url 'ping' ping.id comp.id %}">{{ ping.name }}</a>{% endfor %}</td>
+        <td><a href="{% url 'set_current_company' comp.id %}" class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};">Select</a>
+        <td><a href="{% url 'company_delete' comp.id %}" class='btn btn-sm btn-danger'>Delete</a>
 </td>
     </tr>
 
     {% endfor %}
 </table>
 
-<a href="{% url 'company_new' %}" class='btn btn-yak' style="margin-top: 10px">New Company</a>
+<a href="{% url 'company_new' %}" class='btn btn-yak' style="margin-top: 10px; background-color: {{ company.colour }};">New Company</a>
 
 {% endblock %}
