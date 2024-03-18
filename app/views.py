@@ -65,7 +65,7 @@ def company_delete(request, id):
 # ---- Utilities ------
 # ---------------------
 
-def download(request):
+def download(request, ping_id=None):
     ## if not request.user.is_authenticated: return redirect("login")
 
     writer = ExcelWriter('Responses.xlsx', engine='xlsxwriter')
@@ -75,14 +75,20 @@ def download(request):
 
     general = General.objects.all().first()
 
-    data = model.objects.filter(company=general.company)
+    if ping_id:
+        ping = Ping.objects.get(id=ping_id)
+        data = model.objects.filter(company=general.company, ping=ping)
+    else:
+        data = model.objects.filter(company=general.company)
+
     df = pd.DataFrame(list(data.values()))
 
     company = df.apply(get_company, axis=1)
     ping = df.apply(get_ping, axis=1)
     person = df.apply(get_person, axis=1)
+    area = df.apply(get_area, axis=1)
     question = df.apply(get_question, axis=1)
-    df = pd.concat([company, ping, person, question, df], axis=1)
+    df = pd.concat([company, ping, person, area, question, df], axis=1)
 
     today = datetime.today()
     df.to_excel(writer, sheet_name=f'{today.date()}', index=False)
@@ -102,6 +108,9 @@ def get_ping(row):
     except: return ""
 def get_person(row):
     try: return Person.objects.get(id=row['person_id']).email_address
+    except: return ""
+def get_area(row):
+    try: return Person.objects.get(id=row['person_id']).area
     except: return ""
 def get_question(row):
     try: return Question.objects.get(id=row['question_id']).question
@@ -166,24 +175,26 @@ def survey(request, email_id):
     return render(request, "survey.html", context)
 
 def survey_complete(request, email_id, answer_string):
+    general = General.objects.all().first()
     email = Email.objects.get(id=email_id)
     email.answer = answer_string
     email.save()
     email.person_question.answer = answer_string
     email.person_question.save()
 
-    context = {"email": email, 'company': email.person.company}
+    context = {"email": email, 'company': general.company}
     return render(request, "survey_complete.html", context)
 
 def survey_admin(request, email_id, answer_string):
+    general = General.objects.all().first()
     email = Email.objects.get(id=email_id)
     email.answer = answer_string
     email.save()
     email.person_question.answer = answer_string
     email.person_question.save()
 
-    context = {"email": email, 'company': email.person.company}
-    return redirect('email_view', email.ping.id)
+    context = {"email": email, 'company': general.company}
+    return redirect('email_view', email.ping.id, "True")
 
 # -----------------
 # ---- Emails ------
