@@ -5,7 +5,7 @@ from collections import Counter
 class Company(Model):
     name = CharField(max_length=255, null=True, blank=True)
     icon = ImageField(null=True, blank=True, upload_to="images/")
-    colour = CharField(max_length=10, null=True, blank=True, default="#000000")
+    colour = CharField(max_length=10, null=True, blank=True, default="#A6C9EC")
     colour_text = CharField(max_length=10, null=True, blank=True, default="#ffffff")
 
     def __str__(self): return self.name
@@ -177,6 +177,7 @@ class Email(Model):
 
 class File(Model):
     TYPE_CHOICES = [
+        ("Employees, Questions, Pings", "Employees, Questions, Pings"),
         ("Questions", "Questions"),
         ("Employees", "Employees"),
     ]

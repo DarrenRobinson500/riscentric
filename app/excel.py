@@ -27,6 +27,16 @@ def dfs_from_link(url):
 
     return df_people, df_questions, df_pings
 
+def dfs_from_file(file):
+    # wb = excel_from_link(file)
+
+    df_people = pd.read_excel(file, sheet_name="People")
+    df_questions = pd.read_excel(file, sheet_name="Questions")
+    df_pings = pd.read_excel(file, sheet_name="Pings")
+
+    return df_people, df_questions, df_pings
+
+
 def df_to_db_employee(df):
     general = General.objects.all().first()
     for index, row in df.iterrows():

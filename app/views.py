@@ -39,22 +39,21 @@ def set_current_company(request, id):
 # -----------------------
 
 def company_new(request):
-    print("A")
+    riscentric = Company.objects.filter(name="Riscentric").first()
+    general = General.objects.all().first()
+    general.company = riscentric
+    general.save()
     form = NewCompanyForm()
     print("method:", request.method)
     if request.method == "POST":
-        print("B")
         form = NewCompanyForm(request.POST, request.FILES)
         if form.is_valid():
-            print("Redirect Home")
             form.save()
             return redirect("home")
         else:
             for key, string in form.errors.items():
                 print(key, string)
-            print("Not saved")
-    print("C")
-    context = {"form": form}
+    context = {"form": form, "company": general.company}
     return render(request, "new_company.html", context)
 
 def company_delete(request, id):
@@ -219,6 +218,14 @@ def email_view(request, id, admin):
 
 def files(request):
     general = General.objects.all().first()
+    companies = Company.objects.all()
+    for company in companies:
+        print()
+        print(company)
+        for files in company.files():
+            print(file)
+
+
     context = {"company": general.company}
     return render(request, "files.html", context)
 
@@ -241,6 +248,48 @@ def view_url(request, id):
     file = File.objects.filter(id=id).first()
     print("Getting DFs from Link")
     df_people, df_questions, df_pings = dfs_from_link(file.url)
+
+    print("Converting DFs to HTML")
+    df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+    df_questions_html = df_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+    df_pings_html = df_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+
+    # Load people into DB and create HTML
+    print("Loading people into DB")
+    df_to_db_employee(df_people)
+    db_people = Person.objects.filter(company=general.company)
+    db_people = pd.DataFrame.from_records(db_people.values())
+    db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+
+    # Load questions into DB and create HTML
+    print("Loading questions into DB")
+    df_to_db_questions(df_questions)
+    db_questions = Question.objects.filter(company=general.company)
+    db_questions = pd.DataFrame.from_records(db_questions.values())
+    db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+
+    # Load pings into DB and create HTML
+    print("Loading pings into DB")
+    df_to_db_pings(df_pings)
+    db_pings = Person_Question.objects.filter(company=general.company)
+    db_pings = pd.DataFrame.from_records(db_pings.values())
+    db_pings['company_id'] = db_pings['company_id'].map(company_names)
+    db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
+    db_pings['person_id'] = db_pings['person_id'].map(people_names)
+    db_pings['question_id'] = db_pings['question_id'].map(question_names)
+    db_pings_html = db_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+
+    data_set = [("People", df_people_html, db_people_html), ("Questions", df_questions_html, db_questions_html), ("Pings", df_pings_html, db_pings_html)]
+
+    print("Creating HTML")
+    context = {"company": general.company, 'data_set': data_set, 'file': file}
+    return render(request, "view_url.html", context)
+
+def file_to_db_all(request, id):
+    general = General.objects.all().first()
+    file = File.objects.filter(id=id).first()
+    print("Getting DFs from Link")
+    df_people, df_questions, df_pings = dfs_from_file(file.document)
 
     print("Converting DFs to HTML")
     df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)

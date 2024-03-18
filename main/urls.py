@@ -27,6 +27,8 @@ urlpatterns = [
     path("file_upload", file_upload, name="file_upload"),
     path("file_link", file_link, name="file_link"),
     path("view_url/<id>", view_url, name="view_url"),
+    path("file_to_db_all/<id>", file_to_db_all, name="file_to_db_all"),
+
     # path("file_view/<id>", file_view, name="file_view"),
     # path("file_to_db_questions/<id>", file_to_db_questions, name="file_to_db_questions"),
     # path("file_to_db_employees/<id>", file_to_db_employees, name="file_to_db_employees"),
