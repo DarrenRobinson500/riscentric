@@ -1,6 +1,8 @@
 from django.db.models import *
 from datetime import datetime, date, timedelta, time
 from collections import Counter
+import pandas as pd
+from .df_formats import *
 
 class Company(Model):
     name = CharField(max_length=255, null=True, blank=True)
@@ -123,8 +125,6 @@ class Ping(Model):
         answer_array = sorted(answer_array, key=lambda x: (x[1] is None, x[1]), reverse=True)[0: 10]
         return answer_array
 
-
-
     def emails(self):
         return Email.objects.filter(ping=self)
     def question_answer_no_response(self):
@@ -177,9 +177,10 @@ class Email(Model):
 
 class File(Model):
     TYPE_CHOICES = [
-        ("Employees, Questions, Pings", "Employees, Questions, Pings"),
+        ("People, Questions, Pings", "People, Questions, Pings"),
+        ("People", "People"),
         ("Questions", "Questions"),
-        ("Employees", "Employees"),
+        ("Pings", "Pings"),
     ]
 
     name = CharField(max_length=512)
@@ -192,6 +193,28 @@ class File(Model):
 
     def __str__(self):
         return self.name
+
+    def html_people(self):
+        if not "People" in self.type: return ""
+        df = pd.read_excel(self.document, sheet_name="People")
+        df_html = df.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_html = "<b>People</b><br>" + df_html
+        return df_html
+
+    def html_questions(self):
+        if not "Questions" in self.type: return ""
+        df = pd.read_excel(self.document, sheet_name="Questions")
+        df_html = df.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_html = "<b>Questions</b><br>" + df_html
+        return df_html
+
+    def html_pings(self):
+        if not "Pings" in self.type: return ""
+        df = pd.read_excel(self.document, sheet_name="Pings")
+        df_html = df.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_html = "<b>Pings</b><br>" + df_html
+        return df_html
+
 
     def delete(self, *args, **kwargs):
         self.document.delete()

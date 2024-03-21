@@ -39,7 +39,7 @@ def set_current_company(request, id):
     general.save()
     if len(general.company.pings()) > 0:
         return redirect('pings')
-    return redirect('files')
+    return redirect('file_upload')
 
 # -----------------------------
 # --------AUTHENTICATION=------
@@ -298,107 +298,112 @@ def file_upload(request):
         form = FileForm()
     return render(request, "file_upload.html", {"form": form, 'company': general.company})
 
-def view_url(request, id):
+# def view_url(request, id):
+#     if not request.user.is_authenticated: return redirect("login")
+#     general = General.objects.all().first()
+#     file = File.objects.filter(id=id).first()
+#     print("Getting DFs from Link")
+#     df_people, df_questions, df_pings = dfs_from_link(file.url)
+#
+#     print("Converting DFs to HTML")
+#     df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+#     df_questions_html = df_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+#     df_pings_html = df_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+#
+#     # Load people into DB and create HTML
+#     print("Loading people into DB")
+#     df_to_db_employee(df_people)
+#     db_people = Person.objects.filter(company=general.company)
+#     db_people = pd.DataFrame.from_records(db_people.values())
+#     db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+#
+#     # Load questions into DB and create HTML
+#     print("Loading questions into DB")
+#     df_to_db_questions(df_questions)
+#     db_questions = Question.objects.filter(company=general.company)
+#     db_questions = pd.DataFrame.from_records(db_questions.values())
+#     db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+#
+#     # Load pings into DB and create HTML
+#     print("Loading pings into DB")
+#     df_to_db_pings(df_pings)
+#     db_pings = Person_Question.objects.filter(company=general.company)
+#     db_pings = pd.DataFrame.from_records(db_pings.values())
+#     db_pings['company_id'] = db_pings['company_id'].map(company_names)
+#     db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
+#     db_pings['person_id'] = db_pings['person_id'].map(people_names)
+#     db_pings['question_id'] = db_pings['question_id'].map(question_names)
+#     db_pings_html = db_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+#
+#     data_set = [("People", df_people_html, db_people_html), ("Questions", df_questions_html, db_questions_html), ("Pings", df_pings_html, db_pings_html)]
+#
+#     print("Creating HTML")
+#     context = {"company": general.company, 'data_set': data_set, 'file': file}
+#     return render(request, "view_url.html", context)
+
+def file_to_db(request, id):
     if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
-    file = File.objects.filter(id=id).first()
-    print("Getting DFs from Link")
-    df_people, df_questions, df_pings = dfs_from_link(file.url)
+    file_object = File.objects.filter(id=id).first()
+    file = file_object.document
+    people, questions, pings = False, False, False
+    print("File object type:", file_object.type)
+    if "People" in file_object.type: people = True
+    if "Questions" in file_object.type: questions = True
+    if "Pings" in file_object.type: pings = True
 
-    print("Converting DFs to HTML")
-    df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-    df_questions_html = df_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-    df_pings_html = df_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+    data_set = []
+    if people:
+        df_people = pd.read_excel(file, sheet_name="People")
+        # df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_to_db_people(df_people)
+        db_people = Person.objects.filter(company=general.company)
+        db_people = pd.DataFrame.from_records(db_people.values())
+        db_people['company_id'] = db_people['company_id'].map(company_names)
+        db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        data_set.append(("People", file_object.html_people, db_people_html))
 
-    # Load people into DB and create HTML
-    print("Loading people into DB")
-    df_to_db_employee(df_people)
-    db_people = Person.objects.filter(company=general.company)
-    db_people = pd.DataFrame.from_records(db_people.values())
-    db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+    if questions:
+        df_questions = pd.read_excel(file, sheet_name="Questions")
+        df_questions_html = df_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_to_db_questions(df_questions)
+        db_questions = Question.objects.filter(company=general.company)
+        db_questions = pd.DataFrame.from_records(db_questions.values())
+        db_questions['company_id'] = db_questions['company_id'].map(company_names)
+        db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        data_set.append(("Questions", file_object.html_questions, db_questions_html))
 
-    # Load questions into DB and create HTML
-    print("Loading questions into DB")
-    df_to_db_questions(df_questions)
-    db_questions = Question.objects.filter(company=general.company)
-    db_questions = pd.DataFrame.from_records(db_questions.values())
-    db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+    if pings:
+        df_pings = pd.read_excel(file, sheet_name="Pings")
+        df_pings_html = df_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_to_db_pings(df_pings)
+        db_pings = Person_Question.objects.filter(company=general.company)
+        db_pings = pd.DataFrame.from_records(db_pings.values())
+        db_pings['company_id'] = db_pings['company_id'].map(company_names)
+        db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
+        db_pings['person_id'] = db_pings['person_id'].map(people_names)
+        db_pings['question_id'] = db_pings['question_id'].map(question_names)
+        db_pings_html = db_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        data_set.append(("Pings", file_object.html_pings, db_pings_html))
 
-    # Load pings into DB and create HTML
-    print("Loading pings into DB")
-    df_to_db_pings(df_pings)
-    db_pings = Person_Question.objects.filter(company=general.company)
-    db_pings = pd.DataFrame.from_records(db_pings.values())
-    db_pings['company_id'] = db_pings['company_id'].map(company_names)
-    db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
-    db_pings['person_id'] = db_pings['person_id'].map(people_names)
-    db_pings['question_id'] = db_pings['question_id'].map(question_names)
-    db_pings_html = db_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-
-    data_set = [("People", df_people_html, db_people_html), ("Questions", df_questions_html, db_questions_html), ("Pings", df_pings_html, db_pings_html)]
-
-    print("Creating HTML")
     context = {"company": general.company, 'data_set': data_set, 'file': file}
-    return render(request, "view_url.html", context)
-
-def file_to_db_all(request, id):
-    if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    file = File.objects.filter(id=id).first()
-    print("Getting DFs from Link")
-    df_people, df_questions, df_pings = dfs_from_file(file.document)
-
-    print("Converting DFs to HTML")
-    df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-    df_questions_html = df_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-    df_pings_html = df_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-
-    # Load people into DB and create HTML
-    print("Loading people into DB")
-    df_to_db_employee(df_people)
-    db_people = Person.objects.filter(company=general.company)
-    db_people = pd.DataFrame.from_records(db_people.values())
-    db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-
-    # Load questions into DB and create HTML
-    print("Loading questions into DB")
-    df_to_db_questions(df_questions)
-    db_questions = Question.objects.filter(company=general.company)
-    db_questions = pd.DataFrame.from_records(db_questions.values())
-    db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-
-    # Load pings into DB and create HTML
-    print("Loading pings into DB")
-    df_to_db_pings(df_pings)
-    db_pings = Person_Question.objects.filter(company=general.company)
-    db_pings = pd.DataFrame.from_records(db_pings.values())
-    db_pings['company_id'] = db_pings['company_id'].map(company_names)
-    db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
-    db_pings['person_id'] = db_pings['person_id'].map(people_names)
-    db_pings['question_id'] = db_pings['question_id'].map(question_names)
-    db_pings_html = db_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-
-    data_set = [("People", df_people_html, db_people_html), ("Questions", df_questions_html, db_questions_html), ("Pings", df_pings_html, db_pings_html)]
-
-    print("Creating HTML")
-    context = {"company": general.company, 'data_set': data_set, 'file': file}
-    return render(request, "view_url.html", context)
+    return render(request, "file_to_db.html", context)
 
 
-def file_link(request):
-    if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    if request.method == "POST":
-        form = LinkForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_file = form.save()
-            new_file.company = general.company
-            new_file.save()
-            print("Saved Link:", new_file, general.company, new_file.company)
-            return redirect("files")
-    else:
-        form = LinkForm()
-    return render(request, "file_link.html", {"form": form, 'company': general.company})
+# def file_link(request):
+#     if not request.user.is_authenticated: return redirect("login")
+#     general = General.objects.all().first()
+#     if request.method == "POST":
+#         form = LinkForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             new_file = form.save()
+#             new_file.company = general.company
+#             new_file.save()
+#             print("Saved Link:", new_file, general.company, new_file.company)
+#             return redirect("files")
+#     else:
+#         form = LinkForm()
+#     return render(request, "file_link.html", {"form": form, 'company': general.company})
 
 # def link_to_db_employees(request, id):
 #     file = File.objects.filter(id=id).first()
