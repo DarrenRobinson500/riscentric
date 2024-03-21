@@ -11,6 +11,7 @@ import pandas as pd
 from pandas import ExcelWriter
 from django.http import HttpResponse
 
+
 from .forms import *
 from .emails import *
 from .excel import *
@@ -22,28 +23,44 @@ from .df_formats import *
 
 def home(request):
     if not request.user.is_authenticated: return redirect("login")
-    riscentric = Company.objects.filter(name="Riscentric").first()
-    general = General.objects.all().first()
-    if not general:
-        general = General(name="main")
-    general.company = riscentric
-    general.save()
+    user, company = get_user(request)
+    # riscentric = Company.objects.filter(name="Riscentric").first()
+    # general = General.objects.all().first()
+    # if not general:
+    #     general = General(name="main")
+    # company = riscentric
+    # general.save()
     companies = Company.objects.exclude(name="Riscentric").order_by("name")
-    context = {'companies': companies, 'company': general.company}
+    context = {'companies': companies, 'company': company}
     return render(request, "home.html", context)
 
 def set_current_company(request, id):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    general.company = Company.objects.get(id=id)
-    general.save()
-    if len(general.company.pings()) > 0:
+    user, company = get_user(request)
+    user.company = Company.objects.get(id=id)
+    user.save()
+    if len(user.company.pings()) > 0:
         return redirect('pings')
     return redirect('file_upload')
 
 # -----------------------------
 # --------AUTHENTICATION=------
 # -----------------------------
+
+def get_user(request):
+    user = CustomUser.objects.filter(user=request.user).first()
+    if not user:
+        user = CustomUser(user=request.user)
+        user.save()
+    if not user.company:
+        user.company = Company.objects.filter(name="Riscentric").first()
+    if not user.company:
+        default = Company(name="Riscentric")
+        default.save()
+        user.company = default
+        user.save()
+
+    return user, user.company
 
 def login_user(request):
     if request.user.is_authenticated: return redirect("home")
@@ -73,7 +90,7 @@ def company_new(request):
     if not request.user.is_authenticated: return redirect("login")
     riscentric = Company.objects.filter(name="Riscentric").first()
     general = General.objects.all().first()
-    general.company = riscentric
+    company = riscentric
     general.save()
     form = NewCompanyForm()
     print("method:", request.method)
@@ -85,7 +102,7 @@ def company_new(request):
         else:
             for key, string in form.errors.items():
                 print(key, string)
-    context = {"form": form, "company": general.company}
+    context = {"form": form, "company": company}
     return render(request, "new_company.html", context)
 
 def company_delete(request, id):
@@ -100,6 +117,7 @@ def company_delete(request, id):
 
 def download(request, ping_id=None):
     if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
 
     writer = ExcelWriter('Responses.xlsx', engine='xlsxwriter')
 
@@ -110,9 +128,9 @@ def download(request, ping_id=None):
 
     if ping_id:
         ping = Ping.objects.get(id=ping_id)
-        data = model.objects.filter(company=general.company, ping=ping)
+        data = model.objects.filter(company=company, ping=ping)
     else:
-        data = model.objects.filter(company=general.company)
+        data = model.objects.filter(company=company)
 
     df = pd.DataFrame(list(data.values()))
 
@@ -155,9 +173,9 @@ def get_question(row):
 
 def people(request):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    people = Person.objects.filter(company=general.company)
-    context = {'company': general.company, 'people': people}
+    user, company = get_user(request)
+    people = Person.objects.filter(company=company)
+    context = {'company': company, 'people': people}
     return render(request, "people.html", context)
 
 # ---------------------
@@ -166,9 +184,9 @@ def people(request):
 
 def questions(request):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    questions = Question.objects.filter(company=general.company)
-    context = {'company': general.company, 'questions': questions}
+    user, company = get_user(request)
+    questions = Question.objects.filter(company=company)
+    context = {'company': company, 'questions': questions}
     return render(request, "questions.html", context)
 
 # -----------------
@@ -177,22 +195,16 @@ def questions(request):
 
 def pings(request):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    pings = Ping.objects.filter(company=general.company).order_by('name')
-    context = {'pings': pings, 'company': general.company}
+    user, company = get_user(request)
+    pings = Ping.objects.filter(company=company).order_by('name')
+    context = {'pings': pings, 'company': company}
     return render(request, "pings.html", context)
 
-def ping(request, id, company_id=None):
+def ping(request, id):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-
-    if company_id:
-        general.company = Company.objects.get(id=id)
-        general.save()
-        general = General.objects.all().first()
-
+    user, company = get_user(request)
     ping = Ping.objects.get(id=id)
-    context = {'ping': ping, 'company': general.company}
+    context = {'ping': ping, 'company': company}
     return render(request, "ping.html", context)
 
 def ping_delete(request, id):
@@ -202,38 +214,68 @@ def ping_delete(request, id):
     ping.delete()
     return redirect('pings')
 
+def ping_create(request):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    context = {'company': company}
+    return render(request, "ping_create.html", context)
+
+def ping_save(request):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    name = f"Round {len(company.pings()) + 1}"
+    ping = Ping(name=name, company=company)
+    ping.save()
+    for person in company.people():
+        logic = person.next_question_logic()
+        Person_Question(company=company, ping=ping, person=person, question=logic.next_question).save()
+    return redirect('pings')
+
 def survey(request, email_id):
-    general = General.objects.all().first()
+    user, company = get_user(request)
     email = Email.objects.get(id=email_id)
     person = email.person
     question = email.question
     print("Survey person:", person)
     print("Survey question:", question)
-    context = {"email": email, 'company': general.company}
+    context = {"email": email, 'company': company}
     return render(request, "survey.html", context)
 
 def survey_complete(request, email_id, answer_string):
-    general = General.objects.all().first()
     email = Email.objects.get(id=email_id)
     email.answer = answer_string
+    email.answer_date = datetime.now()
     email.save()
     email.person_question.answer = answer_string
+    email.person_question.answer_date = datetime.now()
     email.person_question.save()
 
-    context = {"email": email, 'company': general.company}
+    context = {"email": email, 'company': email.company}
     return render(request, "survey_complete.html", context)
 
 def survey_admin(request, email_id, answer_string):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
+    user, company = get_user(request)
     email = Email.objects.get(id=email_id)
     email.answer = answer_string
+    email.answer_date = datetime.now()
     email.save()
     email.person_question.answer = answer_string
+    email.person_question.answer_date = datetime.now()
     email.person_question.save()
 
-    context = {"email": email, 'company': general.company}
+    context = {"email": email, 'company': company}
     return redirect('email_view', email.ping.id, "True")
+
+# -----------------
+# ---- Logic ------
+# -----------------
+
+def logic(request):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    context = {'company': company}
+    return render(request, "logic.html", context)
 
 # -----------------
 # ---- Emails ------
@@ -241,8 +283,8 @@ def survey_admin(request, email_id, answer_string):
 
 def email(request):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    context = {'company': general.company}
+    user, company = get_user(request)
+    context = {'company': company}
     return render(request, "email.html", context)
 
 def email_send(request, id):
@@ -258,12 +300,10 @@ def email_view(request, id, admin):
     if not request.user.is_authenticated: return redirect("login")
     if admin == "True": admin = True
     else: admin = False
-    general = General.objects.all().first()
+    user, company = get_user(request)
     ping = Ping.objects.get(id=id)
-    context = {"ping": ping, 'company': general.company, "admin": admin}
+    context = {"ping": ping, 'company': company, "admin": admin}
     return render(request, "email_view.html", context)
-
-
 
 # ---------------------------
 # ---- File Management ------
@@ -271,32 +311,30 @@ def email_view(request, id, admin):
 
 def files(request):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
-    companies = Company.objects.all()
-    for company in companies:
-        print()
-        print(company)
-        for files in company.files():
-            print(file)
+    user, company = get_user(request)
+    for file in company.files():
+        print(file)
+    for file in company.files():
+        print(file)
+        print(file.html_people())
 
-
-    context = {"company": general.company}
+    context = {"company": company}
     return render(request, "files.html", context)
 
 def file_upload(request):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
+    user, company = get_user(request)
     if request.method == "POST":
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             new_file = form.save()
-            new_file.company = general.company
+            new_file.company = company
             new_file.save()
-            print("Saved File:", new_file, general.company, new_file.company)
+            print("Saved File:", new_file, company, new_file.company)
             return redirect("files")
     else:
         form = FileForm()
-    return render(request, "file_upload.html", {"form": form, 'company': general.company})
+    return render(request, "file_upload.html", {"form": form, 'company': company})
 
 # def view_url(request, id):
 #     if not request.user.is_authenticated: return redirect("login")
@@ -313,21 +351,21 @@ def file_upload(request):
 #     # Load people into DB and create HTML
 #     print("Loading people into DB")
 #     df_to_db_employee(df_people)
-#     db_people = Person.objects.filter(company=general.company)
+#     db_people = Person.objects.filter(company=company)
 #     db_people = pd.DataFrame.from_records(db_people.values())
 #     db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
 #
 #     # Load questions into DB and create HTML
 #     print("Loading questions into DB")
 #     df_to_db_questions(df_questions)
-#     db_questions = Question.objects.filter(company=general.company)
+#     db_questions = Question.objects.filter(company=company)
 #     db_questions = pd.DataFrame.from_records(db_questions.values())
 #     db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
 #
 #     # Load pings into DB and create HTML
 #     print("Loading pings into DB")
 #     df_to_db_pings(df_pings)
-#     db_pings = Person_Question.objects.filter(company=general.company)
+#     db_pings = Person_Question.objects.filter(company=company)
 #     db_pings = pd.DataFrame.from_records(db_pings.values())
 #     db_pings['company_id'] = db_pings['company_id'].map(company_names)
 #     db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
@@ -338,57 +376,68 @@ def file_upload(request):
 #     data_set = [("People", df_people_html, db_people_html), ("Questions", df_questions_html, db_questions_html), ("Pings", df_pings_html, db_pings_html)]
 #
 #     print("Creating HTML")
-#     context = {"company": general.company, 'data_set': data_set, 'file': file}
+#     context = {"company": company, 'data_set': data_set, 'file': file}
 #     return render(request, "view_url.html", context)
 
 def file_to_db(request, id):
     if not request.user.is_authenticated: return redirect("login")
-    general = General.objects.all().first()
+    user, company = get_user(request)
     file_object = File.objects.filter(id=id).first()
     file = file_object.document
-    people, questions, pings = False, False, False
-    print("File object type:", file_object.type)
-    if "People" in file_object.type: people = True
-    if "Questions" in file_object.type: questions = True
-    if "Pings" in file_object.type: pings = True
 
     data_set = []
-    if people:
+    if "People" in file_object.type:
         df_people = pd.read_excel(file, sheet_name="People")
         # df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-        df_to_db_people(df_people)
-        db_people = Person.objects.filter(company=general.company)
+        df_to_db_people(df_people, company)
+        db_people = Person.objects.filter(company=company)
         db_people = pd.DataFrame.from_records(db_people.values())
         db_people['company_id'] = db_people['company_id'].map(company_names)
         db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
         data_set.append(("People", file_object.html_people, db_people_html))
 
-    if questions:
+    if "Questions" in file_object.type:
         df_questions = pd.read_excel(file, sheet_name="Questions")
-        df_questions_html = df_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-        df_to_db_questions(df_questions)
-        db_questions = Question.objects.filter(company=general.company)
-        db_questions = pd.DataFrame.from_records(db_questions.values())
-        db_questions['company_id'] = db_questions['company_id'].map(company_names)
-        db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_to_db_questions(df_questions, company)
+        db = Question.objects.filter(company=company)
+        db = pd.DataFrame.from_records(db.values())
+        db = convert_id_to_string(db)
+        db_questions_html = db.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
         data_set.append(("Questions", file_object.html_questions, db_questions_html))
 
-    if pings:
+    if "Pings" in file_object.type:
         df_pings = pd.read_excel(file, sheet_name="Pings")
-        df_pings_html = df_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-        df_to_db_pings(df_pings)
-        db_pings = Person_Question.objects.filter(company=general.company)
-        db_pings = pd.DataFrame.from_records(db_pings.values())
-        db_pings['company_id'] = db_pings['company_id'].map(company_names)
-        db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
-        db_pings['person_id'] = db_pings['person_id'].map(people_names)
-        db_pings['question_id'] = db_pings['question_id'].map(question_names)
-        db_pings_html = db_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        df_to_db_pings(df_pings, company)
+        db = Person_Question.objects.filter(company=company)
+        db = pd.DataFrame.from_records(db.values())
+        db = convert_id_to_string(db)
+        db_pings_html = db.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
         data_set.append(("Pings", file_object.html_pings, db_pings_html))
 
-    context = {"company": general.company, 'data_set': data_set, 'file': file}
+    if "Logic" in file_object.type:
+        df = pd.read_excel(file, sheet_name="Logic")
+        df_to_db_logic(df, company)
+        db = Logic.objects.filter(company=company)
+        db = pd.DataFrame.from_records(db.values())
+        db = convert_id_to_string(db)
+        db_html = db.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
+        data_set.append(("Logic", file_object.html_logic, db_html))
+
+    context = {"company": company, 'data_set': data_set, 'file': file}
     return render(request, "file_to_db.html", context)
 
+def convert_id_to_string(df):
+    foreign_keys = [
+        ('company_id', company_names),
+        ('person_id', people_names),
+        ('ping_id', ping_names),
+        ('question_id', question_names),
+        ('last_question_id', question_names),
+        ('next_question_id', question_names), ]
+    for name_string, map_name in foreign_keys:
+        if name_string in df.columns:
+            df[name_string] = df[name_string].map(map_name)
+    return df
 
 # def file_link(request):
 #     if not request.user.is_authenticated: return redirect("login")
@@ -397,13 +446,13 @@ def file_to_db(request, id):
 #         form = LinkForm(request.POST, request.FILES)
 #         if form.is_valid():
 #             new_file = form.save()
-#             new_file.company = general.company
+#             new_file.company = company
 #             new_file.save()
-#             print("Saved Link:", new_file, general.company, new_file.company)
+#             print("Saved Link:", new_file, company, new_file.company)
 #             return redirect("files")
 #     else:
 #         form = LinkForm()
-#     return render(request, "file_link.html", {"form": form, 'company': general.company})
+#     return render(request, "file_link.html", {"form": form, 'company': company})
 
 # def link_to_db_employees(request, id):
 #     file = File.objects.filter(id=id).first()
@@ -422,7 +471,7 @@ def file_to_db(request, id):
 #         area = sheet.cell(row, 4).value
 #         if not Person.objects.filter(column_name=email_address).exists():
 #             print("Adding:", firstname, surname, email, area)
-#             Person(company=general.company, firstname=firstname, surname=surname, email_address=email_address, area=area).save()
+#             Person(company=company, firstname=firstname, surname=surname, email_address=email_address, area=area).save()
 #         else:
 #             print("Already exists:", firstname, surname, email, area)
 #
@@ -439,7 +488,7 @@ def file_to_db(request, id):
 #     name = sheet.cell(1, 1).value
 #     existing = QuestionSet.objects.filter(name=name)
 #     if len(existing) == 0:
-#         question_set = QuestionSet(name=name, date=date.today(), company=general.company)
+#         question_set = QuestionSet(name=name, date=date.today(), company=company)
 #     else:
 #         question_set = existing.first()
 #     question_set.save()
@@ -500,7 +549,7 @@ def file_to_db(request, id):
 # def file_view(request, id):
 #     general = General.objects.all().first()
 #     question_set, questions = get_set_and_questions(id)
-#     context = {"question_set": question_set, "questions": questions, 'id': id, 'company': general.company}
+#     context = {"question_set": question_set, "questions": questions, 'id': id, 'company': company}
 #     return render(request, 'file_view.html', context)
 
 # def get_spreadsheet_data(file):

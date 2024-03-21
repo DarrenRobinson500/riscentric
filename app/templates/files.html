@@ -5,12 +5,15 @@
 <hr>
     {% for item in company.files %}
         <h3>{{ forloop.counter }}. {{ item }}</h3>
-        Link: <a href="{{ item.document.url }}" target="_blank">{{item.name }}</a><br>
+        {% if item.document %}
+            Link: <a href="{{ item.document.url }}" target="_blank">{{item.name }}</a><br>
+        {% endif %}
         Upload: {{item.time_stamp|date:"j M Y (g:i)"}}<br>
         Contents: {{ item.type }}<br><br>
         {{ item.html_people | safe }}
         {{ item.html_questions | safe }}
         {{ item.html_pings | safe }}
+        {{ item.html_logic | safe }}
         <a href="{% url 'file_to_db' item.id %}" class='btn btn-yak' style="background-color: {{ company.colour }};">Load into DB</a>
 <br><br>
         <hr>

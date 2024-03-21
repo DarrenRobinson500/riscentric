@@ -17,14 +17,15 @@
         </td>
         <td>
             <a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'ping' ping.id %}">Select Ping</a><br><br>
-            <a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'download' ping.id %}">Download</a><br><br>
+            <a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'download' ping.id %}">Download Results</a><br><br>
             <a class='btn btn-sm btn-danger' href="{% url 'ping_delete' ping.id %}">Delete Ping</a>
         </td>
     </tr>
     {% endfor %}
 </table>
 
-<a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'download' %}">Download</a>
+<a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'ping_create' %}">Create Next Ping</a>
+<a class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};" href="{% url 'download' %}">Download Results</a>
 
 
 

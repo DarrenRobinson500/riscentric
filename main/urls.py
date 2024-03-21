@@ -23,6 +23,9 @@ urlpatterns = [
     path("ping/<id>", ping, name="ping"),
     path("ping/<id>/<company_id>", ping, name="ping"),
     path("ping_delete/<id>", ping_delete, name="ping_delete"),
+    path("ping_create", ping_create, name="ping_create"),
+    path("ping_save", ping_save, name="ping_save"),
+    path("logic", logic, name="logic"),
     path("download", download, name="download"),
     path("download/<ping_id>", download, name="download"),
 

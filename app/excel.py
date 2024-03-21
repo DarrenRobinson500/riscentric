@@ -36,40 +36,40 @@ def dfs_from_file(file):
     return df_people, df_questions, df_pings
 
 
-def df_to_db_people(df):
+def df_to_db_people(df, company):
     general = General.objects.all().first()
     for index, row in df.iterrows():
-        if not Person.objects.filter(company=general.company, email_address=row['email']).exists():
-            Person(company=general.company, firstname=row['first_name'], email_address=row['email'], area=row['area']).save()
-    existing_records = Person.objects.filter(company=general.company)
+        if not Person.objects.filter(company=company, email_address=row['email']).exists():
+            Person(company=company, firstname=row['first_name'], email_address=row['email'], area=row['area']).save()
+    existing_records = Person.objects.filter(company=company)
     for record in existing_records:
         if not record.email_address in df['email'].values:
             record.delete()
 
-def df_to_db_questions(df):
+def df_to_db_questions(df, company):
     general = General.objects.all().first()
     for index, row in df.iterrows():
-        if not Question.objects.filter(company=general.company, question=row['question']).exists():
-            Question(company=general.company, question=row['question'], choices=row['choices']).save()
-    existing_records = Question.objects.filter(company=general.company)
+        if not Question.objects.filter(company=company, question=row['question']).exists():
+            Question(company=company, question=row['question'], choices=row['choices']).save()
+    existing_records = Question.objects.filter(company=company)
     for record in existing_records:
         if not record.question in df['question'].values:
             record.delete()
 
-def df_to_db_pings(df):
+def df_to_db_pings(df, company):
     general = General.objects.all().first()
     for index, row in df.iterrows():
-        if not Ping.objects.filter(company=general.company, name=row['ping']).exists():
-            Ping(company=general.company, name=row['ping']).save()
+        if not Ping.objects.filter(company=company, name=row['ping']).exists():
+            Ping(company=company, name=row['ping']).save()
             print("Ping created:", row['ping'])
-        ping = Ping.objects.filter(company=general.company, name=row['ping']).first()
+        ping = Ping.objects.filter(company=company, name=row['ping']).first()
         person = Person.objects.filter(email_address=row['email']).first()
         question = Question.objects.filter(question=row['question']).first()
         if not ping or not person or not question:
             pass
         elif not Person_Question.objects.filter(ping=ping, person=person, question=question):
-            Person_Question(company=general.company, ping=ping, person=person, question=question).save()
-    # existing_records = Person_Question.objects.filter(company=general.company)
+            Person_Question(company=company, ping=ping, person=person, question=question).save()
+    # existing_records = Person_Question.objects.filter(company=company)
     # for record in existing_records:
     #     found = False
     #     for index, row in df.iterrows():
@@ -78,10 +78,34 @@ def df_to_db_pings(df):
     #     if not found:
     #         record.delete()
 
+def df_to_db_logic(df, company):
+    general = General.objects.all().first()
+    for index, row in df.iterrows():
+        last_question = Question.objects.filter(question=row['last_question']).first()
+        next_question = Question.objects.filter(question=row['next_question']).first()
+        existing = Logic.objects.filter(company=company, last_question=last_question, last_answer=row['last_answer']).first()
+        if not existing:
+            Logic(company=company, last_question=last_question, last_answer=row['last_answer'], next_question=next_question).save()
+        else:
+            if existing.next_question != next_question:
+                print("Existing next answer:", existing.next_question, next_question)
+                existing.next_question = next_question
+                existing.save()
+    # existing_records = Question.objects.filter(company=company)
+    # for record in existing_records:
+    #     if not record.question in df['question'].values:
+    #         record.delete()
+
+
+
 def company_names(id): return Company.objects.get(id=id).name
 def ping_names(id): return Ping.objects.get(id=id).name
 def people_names(id): return Person.objects.get(id=id).email_address
-def question_names(id): return Question.objects.get(id=id).question
+def question_names(id):
+    try:
+        return Question.objects.get(id=id).question
+    except:
+        return ""
 
 
 # def excel_from_link(url):

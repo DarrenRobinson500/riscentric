@@ -184,3 +184,5 @@ EMAIL_HOST_PASSWORD = os.environ.get("APP_PASSWORD")
 # Cloudinary Settings
 # DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # CLOUDINARY_URL = os.environ.get("CLOUDINARY_URL")
+
+# AUTH_USER_MODEL = 'app.UserM'

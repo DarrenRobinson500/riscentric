@@ -1,6 +1,7 @@
 {% extends 'base.html'%}
 {% block content %}
-<h1>Load Spreadsheet into Database - {{ company }}</h1>
+<h1>The following data has been loaded into the Database</h1>
+<h3>Company: {{ company }}</h3>
 <a href="{{ file.url }}" target="_blank">{{ file.url }}</a>
 
 {% for title, data_ss, data_db in data_set %}
