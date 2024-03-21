@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 import openpyxl as xl
 import boto3
 from tempfile import NamedTemporaryFile
@@ -19,8 +21,11 @@ from .df_formats import *
 # --------------------
 
 def home(request):
+    if not request.user.is_authenticated: return redirect("login")
     riscentric = Company.objects.filter(name="Riscentric").first()
     general = General.objects.all().first()
+    if not general:
+        general = General(name="main")
     general.company = riscentric
     general.save()
     companies = Company.objects.exclude(name="Riscentric").order_by("name")
@@ -28,17 +33,44 @@ def home(request):
     return render(request, "home.html", context)
 
 def set_current_company(request, id):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     general.company = Company.objects.get(id=id)
     general.save()
     if len(general.company.pings()) > 0:
         return redirect('pings')
     return redirect('files')
+
+# -----------------------------
+# --------AUTHENTICATION=------
+# -----------------------------
+
+def login_user(request):
+    if request.user.is_authenticated: return redirect("home")
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.success(request, ("Error logging in."))
+            return redirect('login')
+    else:
+        context = {}
+        return render(request, 'login.html', context)
+
+def logout_user(request):
+    logout(request)
+    return redirect("login")
+
 # -----------------------
 # ---- New Company ------
 # -----------------------
 
 def company_new(request):
+    if not request.user.is_authenticated: return redirect("login")
     riscentric = Company.objects.filter(name="Riscentric").first()
     general = General.objects.all().first()
     general.company = riscentric
@@ -57,6 +89,7 @@ def company_new(request):
     return render(request, "new_company.html", context)
 
 def company_delete(request, id):
+    if not request.user.is_authenticated: return redirect("login")
     company = Company.objects.get(id=id)
     company.delete()
     return redirect('home')
@@ -66,7 +99,7 @@ def company_delete(request, id):
 # ---------------------
 
 def download(request, ping_id=None):
-    ## if not request.user.is_authenticated: return redirect("login")
+    if not request.user.is_authenticated: return redirect("login")
 
     writer = ExcelWriter('Responses.xlsx', engine='xlsxwriter')
 
@@ -121,6 +154,7 @@ def get_question(row):
 # ---------------------
 
 def people(request):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     people = Person.objects.filter(company=general.company)
     context = {'company': general.company, 'people': people}
@@ -131,6 +165,7 @@ def people(request):
 # ---------------------
 
 def questions(request):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     questions = Question.objects.filter(company=general.company)
     context = {'company': general.company, 'questions': questions}
@@ -141,12 +176,14 @@ def questions(request):
 # -----------------
 
 def pings(request):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     pings = Ping.objects.filter(company=general.company).order_by('name')
     context = {'pings': pings, 'company': general.company}
     return render(request, "pings.html", context)
 
 def ping(request, id, company_id=None):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
 
     if company_id:
@@ -159,6 +196,7 @@ def ping(request, id, company_id=None):
     return render(request, "ping.html", context)
 
 def ping_delete(request, id):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     ping = Ping.objects.get(id=id)
     ping.delete()
@@ -186,6 +224,7 @@ def survey_complete(request, email_id, answer_string):
     return render(request, "survey_complete.html", context)
 
 def survey_admin(request, email_id, answer_string):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     email = Email.objects.get(id=email_id)
     email.answer = answer_string
@@ -201,11 +240,13 @@ def survey_admin(request, email_id, answer_string):
 # -----------------
 
 def email(request):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     context = {'company': general.company}
     return render(request, "email.html", context)
 
 def email_send(request, id):
+    if not request.user.is_authenticated: return redirect("login")
     # general = General.objects.all().first()
     ping = Ping.objects.get(id=id)
     send_email_logic(ping)
@@ -214,6 +255,7 @@ def email_send(request, id):
     return render(request, "email_template.html", context)
 
 def email_view(request, id, admin):
+    if not request.user.is_authenticated: return redirect("login")
     if admin == "True": admin = True
     else: admin = False
     general = General.objects.all().first()
@@ -228,6 +270,7 @@ def email_view(request, id, admin):
 # ---------------------------
 
 def files(request):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     companies = Company.objects.all()
     for company in companies:
@@ -241,6 +284,7 @@ def files(request):
     return render(request, "files.html", context)
 
 def file_upload(request):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     if request.method == "POST":
         form = FileForm(request.POST, request.FILES)
@@ -255,6 +299,7 @@ def file_upload(request):
     return render(request, "file_upload.html", {"form": form, 'company': general.company})
 
 def view_url(request, id):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     file = File.objects.filter(id=id).first()
     print("Getting DFs from Link")
@@ -297,6 +342,7 @@ def view_url(request, id):
     return render(request, "view_url.html", context)
 
 def file_to_db_all(request, id):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     file = File.objects.filter(id=id).first()
     print("Getting DFs from Link")
@@ -340,6 +386,7 @@ def file_to_db_all(request, id):
 
 
 def file_link(request):
+    if not request.user.is_authenticated: return redirect("login")
     general = General.objects.all().first()
     if request.method == "POST":
         form = LinkForm(request.POST, request.FILES)

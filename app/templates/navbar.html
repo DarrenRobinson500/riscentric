@@ -1,15 +1,23 @@
-<nav class="navbar navbar-light navbar-expand-xl" style="background-color: {{ company.colour }}; color: {{company.colour_text}};">
-  <div class="container-fluid">
-      {% if company %}
-    <a class="navbar-brand" href="{% url 'home' %}"><b>{{ company }}</b></a>
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" href="{% url 'people' %}">People</a></li>
-          <li class="nav-item"><a class="nav-link active" href="{% url 'questions' %}">Questions</a></li>
-          <li class="nav-item"><a class="nav-link active" href="{% url 'pings' %}">Pings</a></li>
-          <li class="nav-item"><a class="nav-link active" href="{% url 'file_upload' %}">File Upload</a></li>
-        </ul>
-      {% else %}
-        <a class="navbar-brand" href="{% url 'home' %}"><b>No Company Selected</b></a>
-      {% endif %}
-  </div>
-</nav>
+{% if user.is_authenticated %}
+    <nav class="navbar navbar-light navbar-expand-xl" style="background-color: {{ company.colour }}; color: {{company.colour_text}};">
+      <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}"><b>{{ company }}</b></a>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item"><a class="nav-link active" href="{% url 'people' %}">People</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'questions' %}">Questions</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'pings' %}">Pings</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'file_upload' %}">File Upload</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'files' %}">Files</a></li>
+            </ul>
+            <ul class="nav justify-content-end">
+              <li class="nav-item"><a class="nav-link active" href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+      </div>
+    </nav>
+{% else %}
+    <nav class="navbar navbar-light navbar-expand-xl" style="background-color: #0D6EFD;">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}" style="color: #fff;"><b>Riscourage</b></a>
+      </div>
+    </nav>
+{% endif %}
