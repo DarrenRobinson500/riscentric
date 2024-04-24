@@ -1,0 +1,5 @@
+Upload to AWS Notes
+ - PyCharm - Commit and Push
+ - git pull
+ - sudo service gunicorn restart
+ - sudo service nginx restart

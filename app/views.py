@@ -16,6 +16,7 @@ from .forms import *
 from .emails import *
 from .excel import *
 from .df_formats import *
+from .email_microsoft_test import *
 
 # --------------------
 # ------ HOME ---------
@@ -24,14 +25,17 @@ from .df_formats import *
 def home(request):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
-    # riscentric = Company.objects.filter(name="Riscentric").first()
-    # general = General.objects.all().first()
-    # if not general:
-    #     general = General(name="main")
-    # company = riscentric
-    # general.save()
+    to_dos = [
+        "Move secrets to environment variables"
+        "Document upload to AWS"
+        "Text editor for HTML",
+        "Users Model linked to admin user and own 'current company'",
+        "Bugs",
+        "Secure DB",
+        "Productionise",
+    ]
     companies = Company.objects.exclude(name="Riscentric").order_by("name")
-    context = {'companies': companies, 'company': company}
+    context = {'companies': companies, 'company': company, 'to_dos': to_dos,}
     return render(request, "home.html", context)
 
 def set_current_company(request, id):

@@ -44,6 +44,7 @@ urlpatterns = [
     path("email", email, name="email"),
     path("email_send/<id>", email_send, name="email_send"),
     path("email_view/<id>/<admin>", email_view, name="email_view"),
+
 ]
 
 # if settings.DEBUG:

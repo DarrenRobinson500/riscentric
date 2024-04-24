@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from datetime import *
 from .models import *
+from .email_microsoft_test import *
 
 def send_email_logic(ping):
     subject = 'Subject'
@@ -25,9 +26,11 @@ def send_email_logic(ping):
         text_content = strip_tags(html_content)
 
         # create the email message
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-        msg.attach_alternative(html_content, "text/html")
-        result = msg.send()
-        email.email_result = result
-        email.save()
+        send_microsoft_email(subject, text_content, html_content, [to])
+
+        # msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        # msg.attach_alternative(html_content, "text/html")
+        # result = msg.send()
+        # email.email_result = result
+        # email.save()
 
