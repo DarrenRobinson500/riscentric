@@ -1,8 +1,9 @@
 {% if user.is_authenticated %}
     <nav class="navbar navbar-light navbar-expand-xl" style="background-color: {{ company.colour }}; color: {{company.colour_text}};">
       <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}"><b>{{ company }}</b></a>
+            <a class="navbar-brand" href=""><b>{{ company }}</b></a>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">All Companies</a></li>
               <li class="nav-item"><a class="nav-link active" href="{% url 'people' %}">People</a></li>
               <li class="nav-item"><a class="nav-link active" href="{% url 'questions' %}">Questions</a></li>
               <li class="nav-item"><a class="nav-link active" href="{% url 'pings' %}">Pings</a></li>

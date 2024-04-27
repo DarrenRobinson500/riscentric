@@ -10,7 +10,7 @@
     {% for question, person_questions, answers, answer_count in ping.grouped_person_questions_answers %}
     <tr>
         <td>
-            {{ question.question }}:
+            {{ question.question }} ({{question.company}}):
             <ul>
                 {% for choice in question.choices_split %}
                     <li>{{ choice }}</li>

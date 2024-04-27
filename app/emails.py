@@ -20,13 +20,13 @@ def send_email_logic(ping):
         email.save()
         context = {"email": email}
         print("Email:", email)
-        html_content = render_to_string('email_template.html', context)
+        # html_content = render_to_string('email_template.html', context)
 
         # create a plain text version of the email
-        text_content = strip_tags(html_content)
+        # text_content = strip_tags(html_content)
 
         # create the email message
-        send_microsoft_email(subject, text_content, html_content, [to])
+        send_microsoft_email(email, [to])
 
         # msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         # msg.attach_alternative(html_content, "text/html")

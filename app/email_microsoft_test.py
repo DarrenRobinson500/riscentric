@@ -1,6 +1,7 @@
 from exchangelib import Account, Configuration, Identity, OAUTH2, OAuth2Credentials
 from exchangelib import Configuration, Account, DELEGATE
 from exchangelib import Message, Mailbox, FileAttachment, HTMLBody
+from django.template.loader import render_to_string
 from datetime import datetime
 import os
 
@@ -31,13 +32,28 @@ account = Account(
 )
 
 
-def send_microsoft_email(subject, text_content, html_content, recipients):
+def send_microsoft_email(email, recipients):
 
-    text = f"Hello World {datetime.now()}"
-    html_template = f"<h1>{text}</h1>"
-    email_body = HTMLBody(html_content)
+    # text = f"Hello World {datetime.now()}"
+    # html_template = "<html><body>Hello, here's your image: <img src=\"cid:image\"></body></html>"
 
-    body = "Text content"
+    div_1 = "<div style='text-align: center;'>"
+    image = "<img src=\"cid:image\"></body></html>"
+    # line1 = "<p style='margin: 0;'>Less than 30 seconds of your time to get your view on a single question about risk.</p>"
+    # line2 = "<p style='margin: 0;'>Thank you for you participation.</p><br>"
+    # line3 = "<p style='margin: 0;'>Click here to answer the question.</p>"
+    # div_2 = "<div style='text-align: center'>"
+    # html_template = div_1 + image + line1 + line2 + line3 + div_2
+
+    context = {"email": email}
+    print("Email:", email)
+    html_template = div_1 + image + render_to_string('email_template.html', context)
+
+    # email_body = HTMLBody(html_content)
+    body=HTMLBody(html_template)
+    subject = "We want your view"
+
+    # body = "Text content"
     from_email = email_address
     # recipients = ["darrenandamanda.robinson@gmail.com", ]
 
@@ -45,17 +61,22 @@ def send_microsoft_email(subject, text_content, html_content, recipients):
     for recipient in recipients:
         to_recipients.append(Mailbox(email_address=recipient))
 
-    m = Message(account=account,
+    message = Message(account=account,
                 folder=account.sent,
                 subject=subject,
-                body=email_body,
+                body=body,
                 to_recipients=to_recipients)
 
-    # attach files
-    # for attachment_name, attachment_content in attachments or []:
-    #     file = FileAttachment(name=attachment_name, content=attachment_content)
-    #     m.attach(file)
-    m.send_and_save()
+    with open("images/image.png", "rb") as f:
+        image_attachment = FileAttachment(
+            name="image.png",
+            content=f.read(),
+            is_inline=True,  # Mark as an inline attachment
+            content_id="image",  # Use a unique content ID
+        )
+        message.attach(image_attachment)
+
+    message.send_and_save()
 
 
 

@@ -1,35 +1,7 @@
-{% extends 'base_no_nav.html'%}
-{% block content %}
-Email: {{ email }}<br>
-Person: {{ email.person }}<br>
-Question: {{ email.question }}<br><br>
 
-Dear {{ email.person.firstname | capfirst }},<br><br>
+<p style='margin: 0;'>Less than 30 seconds of your time to get your view on a single question about risk.</p>
+<p style='margin: 0;'>Thank you for you participation.</p><br>
+<a style = "color:black;" href="http://riscourage/survey/{{ email.id }}">Click here to answer the question</a><br><br>
+<a style = "color:black;" href="http://127.0.0.1:8000/survey/{{ email.id }}">Click here to answer the question on Darren's PC</a><br><br>
 
-We hope this email finds you well. As a valued member of our community, we invite you to participate in our short survey. Your insights are essential for us to enhance our services and better meet your needs.
-<br><br>
-
-Purpose of the Survey: We are seeking feedback on [specific topic or purpose, e.g., recent product experience, customer service, event attendance, etc.]. Your input will directly impact our future decisions and improvements.
-<br><br>
-
-Why Participate?: <br><br>
-
-<b>Transparency:</b> We believe in open communication and value your time. <br><br>
-
-<b>Estimated time:</b> 1 minute <br><br>
-
-<b>Today's Question:</b> {{ email.question.question }} <br><br>
-
-Link (local): <a href="http://127.0.0.1:8000/survey/{{ email.id }}">Click here to answer the survey on Darren's local PC</a><br><br>
-Link (on-line): <a href="http://3.27.186.168/survey/{{ email.id }}">Click here to answer the survey on-line (AWS)</a><br><br>
-Link (on-line): <a href="http://riscourage/survey/{{ email.id }}">Click here to answer the survey on-line (AWS - Riscourage)</a><br><br>
-
-Your participation matters, and we appreciate your contribution. Click the link above to begin the survey. Feel free to share your candid thoughts—we’re all ears!
-<br><br>
-
-Thank you in advance for your time and valuable feedback. <br><br>
-
-Best regards
-
-{% endblock %}
-
+</div>

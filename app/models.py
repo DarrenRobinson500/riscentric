@@ -4,6 +4,8 @@ from collections import Counter
 import pandas as pd
 from .df_formats import *
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 class Company(Model):
     name = CharField(max_length=255, null=True, blank=True)
@@ -26,6 +28,8 @@ class Company(Model):
 class CustomUser(Model):
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     company = ForeignKey(Company, null=True, blank=True, on_delete=SET_NULL)
+    def __str__(self):
+        return self.user.username
 
 class General(Model):
     name = TextField(null=True, blank=True)
@@ -101,23 +105,15 @@ class Ping(Model):
     name = TextField(null=True, blank=True)
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     def person_questions(self):
-        return Person_Question.objects.filter(ping=self)
+        return Person_Question.objects.filter(ping=self).filter(company=self.company)
     def questions(self):
         questions = set()
         for person_question in self.person_questions():
-            questions.add(person_question.question)
+            print("Ping questions:", person_question, person_question.company, self.company)
+            if person_question.company == self.company:
+                print("Adding", person_question.question)
+                questions.add(person_question.question)
         return questions
-    # def grouped_person_questions(self):
-    #     person_questions = self.person_questions()
-    #     result = []
-    #     for question in self.questions():
-    #         result.append((question, []))
-    #     for question in result:
-    #         for person_question in person_questions:
-    #             if question[0] == person_question.question:
-    #                 question[1].append(person_question)
-    #     print("Grouped person questions:", result)
-    #     return result
     def grouped_person_questions_answers(self):
         person_questions = self.person_questions()
         result = []
@@ -171,7 +167,7 @@ class Person_Question(Model):
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     answer = TextField(null=True, blank=True)
     answer_date = DateTimeField(null=True, blank=True)
-    def __str__(self): return f"{self.person.firstname} => {self.question.question}"
+    def __str__(self): return f"{self.person.email_address} => {self.question.question}"
     def emails(self): return Email.objects.filter(person_question=self)
 
 class Send(Model):
@@ -242,4 +238,4 @@ class File(Model):
         self.document.delete()
         super().delete(*args, **kwargs)
 
-all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File]
+all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File, CustomUser]

@@ -26,11 +26,14 @@ def home(request):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
     to_dos = [
-        "Move secrets to environment variables"
-        "Document upload to AWS"
-        "Text editor for HTML",
-        "Users Model linked to admin user and own 'current company'",
+        "Fix SSL Cert",
+        "Move secrets to environment variables - Done",
+        "Document upload to AWS - Done",
+        "Picture in HTML - Done",
+        "Users Model linked to admin user and own 'current company' - Done",
+        "Add button to email",
         "Bugs",
+        "Remove Delete Buttons",
         "Secure DB",
         "Productionise",
     ]
@@ -232,7 +235,8 @@ def ping_save(request):
     ping.save()
     for person in company.people():
         logic = person.next_question_logic()
-        Person_Question(company=company, ping=ping, person=person, question=logic.next_question).save()
+        if logic:
+            Person_Question(company=company, ping=ping, person=person, question=logic.next_question).save()
     return redirect('pings')
 
 def survey(request, email_id):
@@ -298,7 +302,8 @@ def email_send(request, id):
     send_email_logic(ping)
     person_question = ping.person_questions().first()
     context = {'company': ping.company, 'person': person_question.person, 'question': person_question.question, 'email': person_question.emails().first()}
-    return render(request, "email_template.html", context)
+    return redirect('email_view', ping.id, False)
+    # return render(request, "email_template.html", context)
 
 def email_view(request, id, admin):
     if not request.user.is_authenticated: return redirect("login")

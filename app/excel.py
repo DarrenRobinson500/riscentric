@@ -63,11 +63,11 @@ def df_to_db_pings(df, company):
             Ping(company=company, name=row['ping']).save()
             print("Ping created:", row['ping'])
         ping = Ping.objects.filter(company=company, name=row['ping']).first()
-        person = Person.objects.filter(email_address=row['email']).first()
-        question = Question.objects.filter(question=row['question']).first()
+        person = Person.objects.filter(company=company, email_address=row['email']).first()
+        question = Question.objects.filter(company=company, question=row['question']).first()
         if not ping or not person or not question:
             pass
-        elif not Person_Question.objects.filter(ping=ping, person=person, question=question):
+        elif not Person_Question.objects.filter(company=company, ping=ping, person=person, question=question):
             Person_Question(company=company, ping=ping, person=person, question=question).save()
     # existing_records = Person_Question.objects.filter(company=company)
     # for record in existing_records:
@@ -81,8 +81,8 @@ def df_to_db_pings(df, company):
 def df_to_db_logic(df, company):
     general = General.objects.all().first()
     for index, row in df.iterrows():
-        last_question = Question.objects.filter(question=row['last_question']).first()
-        next_question = Question.objects.filter(question=row['next_question']).first()
+        last_question = Question.objects.filter(company=company, question=row['last_question']).first()
+        next_question = Question.objects.filter(company=company, question=row['next_question']).first()
         existing = Logic.objects.filter(company=company, last_question=last_question, last_answer=row['last_answer']).first()
         if not existing:
             Logic(company=company, last_question=last_question, last_answer=row['last_answer'], next_question=next_question).save()

@@ -2,7 +2,6 @@
 {% block content %}
 <h1>The following data has been loaded into the Database</h1>
 <h3>Company: {{ company }}</h3>
-<a href="{{ file.url }}" target="_blank">{{ file.url }}</a>
 
 {% for title, data_ss, data_db in data_set %}
 <h2>{{ title }}</h2>
