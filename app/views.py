@@ -426,7 +426,7 @@ def list_view(request, model_str):
     model, form = get_model(model_str)
     items = model.objects.all()
     if model_str == "to_do":
-        items = items.order_by('priority')
+        items = items.order_by('priority', 'name')
     context = {'company': company, 'items': items, 'model_str': model_str, }
     return render(request, model_str + "s.html", context)
 
@@ -463,7 +463,7 @@ def edit(request, model_str, id):
             new = form.save()
             if model_str == "period":
                 new.create_file()
-            return redirect('item', model_str, id)
+            return redirect('list_view', model_str)
     form = form(instance=item)
     context = {'company': company, 'form':form, 'model_str': model_str, 'mode': 'Edit'}
     return render(request, 'new.html', context)
