@@ -424,10 +424,8 @@ def list(request, model_str):
     user, company = get_user(request)
     model, form = get_model(model_str)
     items = model.objects.all()
-    print("Model String:", model_str)
     if model_str == "to_do":
-        print("Ordering To Do")
-        items.order_by('priority')
+        items = items.order_by('priority')
     context = {'company': company, 'items': items, 'model_str': model_str, }
     return render(request, model_str + "s.html", context)
 
