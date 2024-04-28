@@ -215,6 +215,7 @@ class Email(Model):
 class To_do(Model):
     model_name = "to_do"
     name = CharField(max_length=512)
+    owner = CharField(max_length=512, blank=True, null=True)
     priority = IntegerField(default=1)
     open = BooleanField(default=True)
     def __str__(self): return f"{self.name}"

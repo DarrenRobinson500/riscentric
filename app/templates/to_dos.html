@@ -4,16 +4,17 @@
 <h1>Development</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: {{ company.colour }};"><th>Item</th><th>Priority</th><th>Complete</th></tr>
+    <tr style="background-color: {{ company.colour }};"><th>Item</th><th>Priority</th><th>Owner</th><th>Complete</th></tr>
     {% for item in items %}
     {% if item.open %}
         <tr>
             <td>{{ item.name }}</td>
             <td>
                 <a href="{% url 'toggle_value' item.id 'priority_down' %}">-</a>
-                 {{ item.priority }}
+                 {% if item.priority == 10 %}Pre go-live{% else %}{{ item.priority }}{% endif %}
                 <a href="{% url 'toggle_value' item.id 'priority_up' %}">+</a>
             </td>
+            <td><a href="{% url 'toggle_value' item.id 'owner' %}">{{ item.owner }}</a></td>
             <td><a class="btn btn-yak" href="{% url 'toggle_value' item.id 'open' %}" style="background-color: {{ company.colour }};">Close</a></td>
         </tr>
     {% endif %}

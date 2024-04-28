@@ -409,6 +409,9 @@ def toggle_value(request, id, parameter):
     if parameter == "open": to_do.open = not to_do.open
     if parameter == "priority_down": to_do.priority = max(to_do.priority - 1, 1)
     if parameter == "priority_up": to_do.priority = to_do.priority + 1
+    if parameter == "owner":
+        if to_do.owner == "Darren": to_do.owner = "Simone"
+        else: to_do.owner = "Darren"
     to_do.save()
     return redirect('list_view', 'to_do')
 
