@@ -46,7 +46,7 @@ urlpatterns = [
     path("email_view/<id>/<admin>", email_view, name="email_view"),
 
     path("new/<model_str>", new, name="new"),
-    path("list/<model_str>", list, name="list"),
+    path("list_view/<model_str>", list_view, name="list_view"),
     path("item/<model_str>/<id>", item, name="item"),
     path("new/<model_str>", new, name="new"),
     path("edit/<model_str>/<id>", edit, name="edit"),

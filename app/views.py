@@ -135,9 +135,13 @@ def download(request, ping_id=None):
     area = df.apply(get_area, axis=1)
     question = df.apply(get_question, axis=1)
     df = pd.concat([company, ping, person, area, question, df], axis=1)
+    print(df.columns)
+    if 'answer_date' in df.columns:
+    # df = df.drop(["answer_date",], axis=1)
+        del df['answer_date']
 
-    today = datetime.today()
-    df.to_excel(writer, sheet_name=f'{today.date()}', index=False)
+    today = datetime.today().strftime("%B %d, %Y") + "X"
+    df.to_excel(writer, sheet_name=f'{today}', index=False)
     writer.close()
 
     # Create an HttpResponse object with the Excel file
@@ -406,14 +410,14 @@ def toggle_value(request, id, parameter):
     if parameter == "priority_down": to_do.priority = max(to_do.priority - 1, 1)
     if parameter == "priority_up": to_do.priority = to_do.priority + 1
     to_do.save()
-    return redirect('list', 'to_do')
+    return redirect('list_view', 'to_do')
 
 
 # ------------------------------
 # ---- Generic Functions  ------
 # ------------------------------
 
-def list(request, model_str):
+def list_view(request, model_str):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
     model, form = get_model(model_str)
@@ -440,7 +444,7 @@ def new(request, model_str):
         if form.is_valid():
             new = form.save()
             if model_str == "period": new.create_files()
-            return redirect('list', model_str)
+            return redirect('list_view', model_str)
     form = form()
     context = {'company': company, 'form':form, 'model_str': model_str, 'mode': 'New'}
     return render(request, 'new.html', context)
@@ -465,6 +469,6 @@ def delete(request, model_str, id):
     model, form = get_model(model_str)
     item = model.objects.get(id=id)
     if item: item.delete()
-    return redirect("list", model_str)
+    return redirect("list_view", model_str)
 
 
