@@ -8,6 +8,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class Company(Model):
+    model_name = "company"
     name = CharField(max_length=255, null=True, blank=True)
     icon = ImageField(null=True, blank=True, upload_to="images/")
     colour = CharField(max_length=10, null=True, blank=True, default="#A6C9EC")
@@ -26,17 +27,20 @@ class Company(Model):
 #         return self.username
 
 class CustomUser(Model):
+    model_name = "custom_user"
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     company = ForeignKey(Company, null=True, blank=True, on_delete=SET_NULL)
     def __str__(self):
         return self.user.username
 
 class General(Model):
+    model_name = "general"
     name = TextField(null=True, blank=True)
     company = ForeignKey(Company, null=True, blank=True, on_delete=SET_NULL)
     def __str__(self): return self.name
 
 class Person(Model):
+    model_name = "person"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     firstname = TextField(null=True, blank=True)
     surname = TextField(null=True, blank=True)
@@ -60,6 +64,7 @@ class Person(Model):
         return logic
 
 class QuestionSet(Model):
+    model_name = "question_set"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     name = TextField(null=True, blank=True)
     date = DateField(auto_now=False, null=True)
@@ -70,6 +75,7 @@ class QuestionSet(Model):
     def questions(self): return Question.objects.filter(question_set=self).order_by("schedule_date")
 
 class Question(Model):
+    model_name = "question"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     question = TextField(null=True, blank=True)
     choices = CharField(max_length=255, blank=True)
@@ -95,6 +101,7 @@ class Question(Model):
         return Email.objects.filter(question=self).order_by('id')
 
 class Answer(Model):
+    model_name = "answer"
     person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     answer = TextField(null=True, blank=True)
@@ -102,6 +109,7 @@ class Answer(Model):
     def __str__(self): return f"Answer: {self.person} {self.question} => {self.answer}"
 
 class Ping(Model):
+    model_name = "ping"
     name = TextField(null=True, blank=True)
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     def person_questions(self):
@@ -154,6 +162,7 @@ class Ping(Model):
         return f"Response Rate: {int(numerator / demoninator * 100)}% ({numerator} of {demoninator})"
 
 class Logic(Model):
+    model_name = "logic"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     last_question = ForeignKey(Question, null=True, blank=True, related_name="last_question", on_delete=CASCADE)
     last_answer = TextField(null=True, blank=True)
@@ -161,6 +170,7 @@ class Logic(Model):
     def __str__(self): return f"{self.last_question.question} + {self.last_answer} => {self.next_question.question}"
 
 class Person_Question(Model):
+    model_name = "person_question"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     ping = ForeignKey(Ping, null=True, blank=True, on_delete=CASCADE)
     person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
@@ -171,11 +181,13 @@ class Person_Question(Model):
     def emails(self): return Email.objects.filter(person_question=self)
 
 class Send(Model):
+    model_name = "send"
     ping = ForeignKey(Ping, null=True, blank=True, on_delete=CASCADE)
     number = IntegerField(null=True, blank=True)
     person_question = ForeignKey(Person_Question, null=True, blank=True, on_delete=CASCADE)
 
 class Email(Model):
+    model_name = "email"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     ping = ForeignKey(Ping, null=True, blank=True, on_delete=CASCADE)
     person_question = ForeignKey(Person_Question, null=True, blank=True, on_delete=CASCADE)
@@ -201,6 +213,13 @@ class Email(Model):
 #     answer = ForeignKey(Answer, null=True, blank=True, on_delete=CASCADE)
 #     response_date = DateTimeField(auto_now_add=True)
 
+class To_do(Model):
+    model_name = "to_do"
+    name = CharField(max_length=512)
+    priority = IntegerField(default=1)
+    open = BooleanField(default=True)
+    def __str__(self): return f"{self.name}"
+
 class File(Model):
     TYPE_CHOICES = [
         ("People, Questions, Pings", "People, Questions, Pings"),
@@ -209,6 +228,7 @@ class File(Model):
         ("Pings", "Pings"),
         ("Logic", "Logic"),
     ]
+    model_name = "file"
 
     name = CharField(max_length=512)
     time_stamp = DateTimeField(auto_now_add=True, null=True,blank=True)
@@ -238,4 +258,4 @@ class File(Model):
         self.document.delete()
         super().delete(*args, **kwargs)
 
-all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File, CustomUser]
+all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File, CustomUser, To_do]

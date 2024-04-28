@@ -1,0 +1,20 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Development</h1>
+
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: {{ company.colour }};"><th>Item</th><th>Priority</th><th>Open</th></tr>
+    {% for item in items %}
+        {% if item.open %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.priorty }}</td>
+            <td>{{ item.open }}<a class="btn btn-yak" href="{% url 'toggle_value' item.id 'open' %}">Close</a></td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+</table>
+<a class="btn btn-yak" href="{% url 'new' model_str %}" style="background-color: {{ company.colour }};">Create {{ model_str | capfirst }}</a><br><br>
+
+{% endblock %}

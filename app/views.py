@@ -25,20 +25,8 @@ from .email_microsoft_test import *
 def home(request):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
-    to_dos = [
-        "Fix SSL Cert",
-        "Move secrets to environment variables - Done",
-        "Document upload to AWS - Done",
-        "Picture in HTML - Done",
-        "Users Model linked to admin user and own 'current company' - Done",
-        "Add button to email",
-        "Bugs",
-        "Remove Delete Buttons",
-        "Secure DB",
-        "Productionise",
-    ]
     companies = Company.objects.exclude(name="Riscentric").order_by("name")
-    context = {'companies': companies, 'company': company, 'to_dos': to_dos,}
+    context = {'companies': companies, 'company': company, }
     return render(request, "home.html", context)
 
 def set_current_company(request, id):
@@ -345,49 +333,6 @@ def file_upload(request):
         form = FileForm()
     return render(request, "file_upload.html", {"form": form, 'company': company})
 
-# def view_url(request, id):
-#     if not request.user.is_authenticated: return redirect("login")
-#     general = General.objects.all().first()
-#     file = File.objects.filter(id=id).first()
-#     print("Getting DFs from Link")
-#     df_people, df_questions, df_pings = dfs_from_link(file.url)
-#
-#     print("Converting DFs to HTML")
-#     df_people_html = df_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-#     df_questions_html = df_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-#     df_pings_html = df_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-#
-#     # Load people into DB and create HTML
-#     print("Loading people into DB")
-#     df_to_db_employee(df_people)
-#     db_people = Person.objects.filter(company=company)
-#     db_people = pd.DataFrame.from_records(db_people.values())
-#     db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-#
-#     # Load questions into DB and create HTML
-#     print("Loading questions into DB")
-#     df_to_db_questions(df_questions)
-#     db_questions = Question.objects.filter(company=company)
-#     db_questions = pd.DataFrame.from_records(db_questions.values())
-#     db_questions_html = db_questions.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-#
-#     # Load pings into DB and create HTML
-#     print("Loading pings into DB")
-#     df_to_db_pings(df_pings)
-#     db_pings = Person_Question.objects.filter(company=company)
-#     db_pings = pd.DataFrame.from_records(db_pings.values())
-#     db_pings['company_id'] = db_pings['company_id'].map(company_names)
-#     db_pings['ping_id'] = db_pings['ping_id'].map(ping_names)
-#     db_pings['person_id'] = db_pings['person_id'].map(people_names)
-#     db_pings['question_id'] = db_pings['question_id'].map(question_names)
-#     db_pings_html = db_pings.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
-#
-#     data_set = [("People", df_people_html, db_people_html), ("Questions", df_questions_html, db_questions_html), ("Pings", df_pings_html, db_pings_html)]
-#
-#     print("Creating HTML")
-#     context = {"company": company, 'data_set': data_set, 'file': file}
-#     return render(request, "view_url.html", context)
-
 def file_to_db(request, id):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
@@ -448,129 +393,85 @@ def convert_id_to_string(df):
             df[name_string] = df[name_string].map(map_name)
     return df
 
-# def file_link(request):
-#     if not request.user.is_authenticated: return redirect("login")
-#     general = General.objects.all().first()
-#     if request.method == "POST":
-#         form = LinkForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             new_file = form.save()
-#             new_file.company = company
-#             new_file.save()
-#             print("Saved Link:", new_file, company, new_file.company)
-#             return redirect("files")
-#     else:
-#         form = LinkForm()
-#     return render(request, "file_link.html", {"form": form, 'company': company})
+# -----------------------
+# ---- Development ------
+# -----------------------
 
-# def link_to_db_employees(request, id):
-#     file = File.objects.filter(id=id).first()
-#     wb = excel_from_link(file.url)
-#     spreadsheet_to_db_employee(wb)
-#     return redirect('people')
+def development(request):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    items = To_do.objects.all()
+    model_str = "to_do"
+    context = {'company': company, 'items': items, 'model_str': model_str}
+    return render(request, "to_do.html", context)
 
-# def spreadsheet_to_db_employee(wb):
-#     sheet = wb.active
-#     general = General.objects.all().first()
-#
-#     for row in range(2, sheet.max_row + 1):
-#         firstname = sheet.cell(row, 1).value
-#         surname = sheet.cell(row, 2).value
-#         email_address = sheet.cell(row, 3).value
-#         area = sheet.cell(row, 4).value
-#         if not Person.objects.filter(column_name=email_address).exists():
-#             print("Adding:", firstname, surname, email, area)
-#             Person(company=company, firstname=firstname, surname=surname, email_address=email_address, area=area).save()
-#         else:
-#             print("Already exists:", firstname, surname, email, area)
-#
-#
-# def link_to_db_questions(request, id):
-#     file = File.objects.filter(id=id).first()
-#     wb = excel_from_link(file.url)
-#     spreadsheet_to_db_questions(wb)
-#     return redirect('questions')
-#
-# def spreadsheet_to_db_questions(wb):
-#     general = General.objects.all().first()
-#     sheet = wb.active
-#     name = sheet.cell(1, 1).value
-#     existing = QuestionSet.objects.filter(name=name)
-#     if len(existing) == 0:
-#         question_set = QuestionSet(name=name, date=date.today(), company=company)
-#     else:
-#         question_set = existing.first()
-#     question_set.save()
-#     for row in range(2, sheet.max_row + 1):
-#         question = sheet.cell(row, 1).value
-#         if question:
-#             scheduled_date = sheet.cell(row, 2).value
-#             more_choices, col, choices = True, 3, []
-#             while more_choices and col < 10:
-#                 choice = sheet.cell(row, col).value
-#                 if not choice:
-#                     more_choices = False
-#                 else:
-#                     choices.append(choice)
-#                     col += 1
-#             choices_string = ','.join(choices)
-#             existing = Question.objects.filter(question_set=question_set, question=question)
-#             if len(existing) == 0:
-#                 Question(question_set=question_set, schedule_date=scheduled_date, question=question, choices=choices_string).save()
+def toggle_value(request, id, parameter):
+    to_do = To_do.objects.get(id=id)
+    if parameter == "open": to_do.open = not to_do.open
+    if parameter == "priority_down": to_do.priority = max(to_do.priority - 1, 1)
+    if parameter == "priority_up": to_do.priority = to_do.priority + 1
+    to_do.save()
+    return redirect('list', 'to_do')
 
 
 # ------------------------------
-# ------ TO BE DELETED ---------
+# ---- Generic Functions  ------
 # ------------------------------
 
-# def load_spreadsheet_from_s3(id):
-#     file = File.objects.filter(id=id).first()
-#     bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-#     path = str(file.document.url)
-#     path = path[path.find("files"):path.find("xlsx") + 4]
-#     session = boto3.Session(
-#         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-#         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-#     )
-#     s3 = session.resource('s3')
-#     with NamedTemporaryFile(suffix='.xlsx') as tmp:
-#         s3.Bucket(bucket_name).download_file(path, tmp.name)
-#         workbook = xl.load_workbook(tmp.name)
-#     return workbook
-#
-# def file_to_db_employees(request, id):
-#     # wb = load_spreadsheet_from_s3(id)
-#     file = File.objects.filter(id=id).first()
-#     path = file.document.path
-#     wb = xl.load_workbook(path)
-#     spreadsheet_to_db_employee(wb)
-#     return redirect(f'people')
-#
-# def file_to_db_questions(request, id):
-#     general = General.objects.all().first()
-#     # wb = load_spreadsheet_from_s3(id)
-#     file = File.objects.filter(id=id).first()
-#     path = file.document.path
-#     wb = xl.load_workbook(path)
-#     spreadsheet_to_db_questions(wb)
-#     return redirect('questions')
-#
-# def file_view(request, id):
-#     general = General.objects.all().first()
-#     question_set, questions = get_set_and_questions(id)
-#     context = {"question_set": question_set, "questions": questions, 'id': id, 'company': company}
-#     return render(request, 'file_view.html', context)
+def list(request, model_str):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    model, form = get_model(model_str)
+    items = model.objects.all()
+    print("Model String:", model_str)
+    if model_str == "to_do":
+        print("Ordering To Do")
+        items.order_by('priority')
+    context = {'company': company, 'items': items, 'model_str': model_str, }
+    return render(request, model_str + "s.html", context)
 
-# def get_spreadsheet_data(file):
-#
-#     # Replace with your OneDrive file URL
-#     file_url = 'https://onedrive.com/yourfile.xlsx'
-#
-#     # Read the file into a pandas DataFrame
-#     response = File.open_binary(ctx, file_url)
-#     bytes_file_obj = io.BytesIO()
-#     bytes_file_obj.write(response.content)
-#     bytes_file_obj.seek(0)
-#     df = pd.read_excel(bytes_file_obj)
-#
-#     print(df)
+def item(request, model_str, id):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    model, form = get_model(model_str)
+    item = model.objects.get(id=id)
+    context = {'company': company, 'item': item, 'model_str': model_str, }
+    return render(request, model_str + ".html", context)
+
+def new(request, model_str):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    model, form = get_model(model_str)
+    if request.method == 'POST':
+        form = form(request.POST)
+        if form.is_valid():
+            new = form.save()
+            if model_str == "period": new.create_files()
+            return redirect('list', model_str)
+    form = form()
+    context = {'company': company, 'form':form, 'model_str': model_str, 'mode': 'New'}
+    return render(request, 'new.html', context)
+
+def edit(request, model_str, id):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    model, form = get_model(model_str)
+    item = model.objects.get(id=id)
+    if request.method == 'POST':
+        form = form(request.POST or None, instance=item)
+        if form.is_valid():
+            new = form.save()
+            if model_str == "period":
+                new.create_file()
+            return redirect('item', model_str, id)
+    form = form(instance=item)
+    context = {'company': company, 'form':form, 'model_str': model_str, 'mode': 'Edit'}
+    return render(request, 'new.html', context)
+
+def delete(request, model_str, id):
+    model, form = get_model(model_str)
+    item = model.objects.get(id=id)
+    if item: item.delete()
+    return redirect("list", model_str)
+
+

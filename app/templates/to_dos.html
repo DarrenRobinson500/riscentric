@@ -1,0 +1,42 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Development</h1>
+
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: {{ company.colour }};"><th>Item</th><th>Priority</th><th>Complete</th></tr>
+    {% for item in items %}
+    {% if item.open %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>
+                <a href="{% url 'toggle_value' item.id 'priority_down' %}">-</a>
+                 {{ item.priority }}
+                <a href="{% url 'toggle_value' item.id 'priority_up' %}">+</a>
+            </td>
+            <td><a class="btn btn-yak" href="{% url 'toggle_value' item.id 'open' %}" style="background-color: {{ company.colour }};">Close</a></td>
+        </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+<a class="btn btn-yak" href="{% url 'new' model_str %}" style="background-color: {{ company.colour }};">Create {{ model_str | capfirst }}</a><br><br>
+
+<h2>Closed Items</h2>
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: {{ company.colour }};"><th>Item</th><th>Priority</th><th>Complete</th></tr>
+    {% for item in items %}
+    {% if not item.open %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.priority }}</td>
+            <td>
+                <a class="btn btn-yak" href="{% url 'toggle_value' item.id 'open' %}" style="background-color: {{ company.colour }};">Re-open</a>
+                <a class="btn btn-yak" href="{% url 'delete' model_str item.id %}" style="background-color: {{ company.colour }};">Delete</a>
+        </td>
+        </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+
+
+{% endblock %}

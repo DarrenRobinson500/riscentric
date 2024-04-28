@@ -20,11 +20,5 @@
 
 <a href="{% url 'company_new' %}" class='btn btn-yak' style="margin-top: 10px; background-color: {{ company.colour }};">New Company</a>
 
-<h3>To Do</h3>
-<ul>
-    {% for to_do in to_dos %}
-    <li>{{ to_do }}</li>
-    {% endfor %}
-</ul>
 
 {% endblock %}

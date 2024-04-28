@@ -45,6 +45,14 @@ urlpatterns = [
     path("email_send/<id>", email_send, name="email_send"),
     path("email_view/<id>/<admin>", email_view, name="email_view"),
 
+    path("new/<model_str>", new, name="new"),
+    path("list/<model_str>", list, name="list"),
+    path("item/<model_str>/<id>", item, name="item"),
+    path("new/<model_str>", new, name="new"),
+    path("edit/<model_str>/<id>", edit, name="edit"),
+    path("toggle_value/<id>/<parameter>", toggle_value, name="toggle_value"),
+    path("delete/<model_str>/<id>", delete, name="delete"),
+    path("development", development, name="development"),
 ]
 
 # if settings.DEBUG:
