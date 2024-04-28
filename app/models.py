@@ -17,7 +17,7 @@ class Company(Model):
     def __str__(self): return self.name
     def question_sets(self): return QuestionSet.objects.filter(company=self)
     def files(self): return File.objects.filter(company=self).order_by("name").order_by("-time_stamp")
-    def people(self): return Person.objects.filter(company=self).order_by("firstname")
+    def people(self): return Person.objects.filter(company=self).order_by("email_address")
     def pings(self): return Ping.objects.filter(company=self).order_by("name")
     def logic(self): return Logic.objects.filter(company=self).order_by("last_question")
 
@@ -46,8 +46,8 @@ class Person(Model):
     surname = TextField(null=True, blank=True)
     email_address = EmailField(null=True, blank=True)
     area = TextField(null=True, blank=True)
-    def __str__(self): return f"{self.firstname} ({self.company})"
-    def name(self): return f"{self.firstname}"
+    def __str__(self): return f"{self.email_address} ({self.company})"
+    def name(self): return f"{self.email_address}"
     def last_question(self):
         result = Person_Question.objects.filter(person=self).order_by('-answer_date').first()
         return result
@@ -60,7 +60,6 @@ class Person(Model):
         else:
             last_answer = "nan"
         logic = Logic.objects.filter(company=self.company, last_question=last_question, last_answer=last_answer).first()
-        # print(f"Next question:, '{self.firstname}' '{last_question.question}' '{last_answer}' '{logic}'")
         return logic
 
 class QuestionSet(Model):
@@ -198,7 +197,7 @@ class Email(Model):
     email_date = DateTimeField(auto_now_add=True)
     answer = TextField(null=True, blank=True)
     answer_date = DateTimeField(null=True, blank=True)
-    def __str__(self): return f"Email to {self.person} {self.email_date}"
+    def __str__(self): return f"Email to {self.person} ({self.email_date})"
 
 
 # class Response(Model):
@@ -220,6 +219,11 @@ class To_do(Model):
     open = BooleanField(default=True)
     def __str__(self): return f"{self.name}"
 
+required_fields_dict = {
+    'Logic': ["last_question", "next_question", "response"]
+}
+
+
 class File(Model):
     TYPE_CHOICES = [
         ("People, Questions, Pings", "People, Questions, Pings"),
@@ -240,6 +244,20 @@ class File(Model):
 
     def __str__(self):
         return f"{self.name} ({self.company})"
+
+    def message(self):
+        text = ""
+        if self.type == "Logic":
+            df = pd.read_excel(self.document, sheet_name="Logic")
+            required_fields = required_fields_dict['Logic']
+            for field in required_fields:
+                if field not in df.columns:
+                    error = f"<li>Missing field: '{field}'.</li>"
+                    print(error)
+                    text += error
+        return text
+
+
 
     def html_people(self): return self.html("People")
     def html_questions(self): return self.html("Questions")

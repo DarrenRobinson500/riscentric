@@ -310,11 +310,6 @@ def email_view(request, id, admin):
 def files(request):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
-    for file in company.files():
-        print(file)
-    for file in company.files():
-        print(file)
-        print(file.html_people())
 
     context = {"company": company}
     return render(request, "files.html", context)
@@ -339,7 +334,6 @@ def file_to_db(request, id):
     user, company = get_user(request)
     file_object = File.objects.filter(id=id).first()
     file = file_object.document
-
     data_set = []
     if "People" in file_object.type:
         df_people = pd.read_excel(file, sheet_name="People")

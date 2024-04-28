@@ -10,11 +10,18 @@
         {% endif %}
         Upload: {{item.time_stamp|date:"j M Y (g:i)"}}<br>
         Contents: {{ item.type }}<br><br>
+
         {{ item.html_people | safe }}
         {{ item.html_questions | safe }}
         {{ item.html_pings | safe }}
         {{ item.html_logic | safe }}
-        <a href="{% url 'file_to_db' item.id %}" class='btn btn-yak' style="background-color: {{ company.colour }};">Load into DB</a>
+
+        {% if item.message %}
+            <div class="alert alert-danger"><strong>Warning!</strong><ul>{{ item.message | safe }}</ul></div>
+        {% else %}
+            <a href="{% url 'file_to_db' item.id %}" class='btn btn-yak' style="background-color: {{ company.colour }};">Load into DB</a>
+        {% endif %}
+
 <br><br>
         <hr>
     {% endfor %}

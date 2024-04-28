@@ -13,7 +13,7 @@ def send_email_logic(ping):
         if person_question.answer: continue
         person = person_question.person
         question = person_question.question
-        to = person.email_address
+        to = person_question.person.email_address
 
         # render the HTML content using a template
         email = Email(company=ping.company, ping=ping, person=person, question=question, person_question=person_question)

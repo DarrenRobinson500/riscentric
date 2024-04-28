@@ -40,7 +40,7 @@ def df_to_db_people(df, company):
     general = General.objects.all().first()
     for index, row in df.iterrows():
         if not Person.objects.filter(company=company, email_address=row['email']).exists():
-            Person(company=company, firstname=row['first_name'], email_address=row['email'], area=row['area']).save()
+            Person(company=company, email_address=row['email'], area=row['area']).save()
     existing_records = Person.objects.filter(company=company)
     for record in existing_records:
         if not record.email_address in df['email'].values:
@@ -69,14 +69,6 @@ def df_to_db_pings(df, company):
             pass
         elif not Person_Question.objects.filter(company=company, ping=ping, person=person, question=question):
             Person_Question(company=company, ping=ping, person=person, question=question).save()
-    # existing_records = Person_Question.objects.filter(company=company)
-    # for record in existing_records:
-    #     found = False
-    #     for index, row in df.iterrows():
-    #         if row['email'] == record.person.email_address and row['question'] == record.question.question:
-    #             found = True
-    #     if not found:
-    #         record.delete()
 
 def df_to_db_logic(df, company):
     general = General.objects.all().first()
@@ -91,12 +83,6 @@ def df_to_db_logic(df, company):
                 print("Existing next answer:", existing.next_question, next_question)
                 existing.next_question = next_question
                 existing.save()
-    # existing_records = Question.objects.filter(company=company)
-    # for record in existing_records:
-    #     if not record.question in df['question'].values:
-    #         record.delete()
-
-
 
 def company_names(id): return Company.objects.get(id=id).name
 def ping_names(id): return Ping.objects.get(id=id).name
@@ -106,40 +92,3 @@ def question_names(id):
         return Question.objects.get(id=id).question
     except:
         return ""
-
-
-# def excel_from_link(url):
-#     onedrive_direct_link = create_onedrive_directdownload(url)
-#     file = urllib.request.urlopen(onedrive_direct_link).read()
-#     wb = load_workbook(filename=io.BytesIO(file))
-#     return wb
-#
-#
-# def df_from_link_credentials(url):
-# # site_url = "https://1drv.ms/x/s!Apw4mhMkELavg-0qvRdYeLFDQnGLpQ?e=iaymIR&nav=MTVfezA5QzBFQkNFLTRBNUYtNDQwMy05MTNFLTkxNEJGM0JBQjY0Rn0"
-#
-# # Replace with your username and password
-# # username = "yourusername"
-# # password = "yourpassword"
-#
-# # Initialize the client context
-# # ctx = ClientContext(site_url).with_credentials(UserCredential(username, password=password))
-#
-#     ctx = ClientContext(url)
-#     ctx.load(ctx.web)
-#     ctx.execute_query()
-#
-#     # Specify the relative URL of the Excel file
-#     relative_url = "/sites/documentsite/Documents/filename.xlsx"
-#
-#     # Open the binary content of the file
-#     response = file.File.open_binary(ctx, relative_url)
-#
-#     # Save data to a BytesIO stream
-#     bytes_file_obj = io.BytesIO()
-#     bytes_file_obj.write(response.content)
-#     bytes_file_obj.seek(0)
-#
-#     # Read the file into a pandas dataframe
-#     df = pd.read_excel(bytes_file_obj)
-#     print(df)

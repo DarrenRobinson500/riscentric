@@ -61,23 +61,26 @@ def send_microsoft_email(email, recipients):
     for recipient in recipients:
         to_recipients.append(Mailbox(email_address=recipient))
 
-    message = Message(account=account,
-                folder=account.sent,
-                subject=subject,
-                body=body,
-                to_recipients=to_recipients)
+    try:
+        message = Message(account=account,
+                    folder=account.sent,
+                    subject=subject,
+                    body=body,
+                    to_recipients=to_recipients)
 
-    with open("images/image.png", "rb") as f:
-        image_attachment = FileAttachment(
-            name="image.png",
-            content=f.read(),
-            is_inline=True,  # Mark as an inline attachment
-            content_id="image",  # Use a unique content ID
-        )
-        message.attach(image_attachment)
+        with open("images/image.png", "rb") as f:
+            image_attachment = FileAttachment(
+                name="image.png",
+                content=f.read(),
+                is_inline=True,  # Mark as an inline attachment
+                content_id="image",  # Use a unique content ID
+            )
+            message.attach(image_attachment)
 
-    message.send_and_save()
-
+        message.send_and_save()
+    except:
+        email.answer = "Failed to send"
+        email.save()
 
 
     # account.send_message(
