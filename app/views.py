@@ -228,8 +228,9 @@ def ping_save(request):
     return redirect('pings')
 
 def survey(request, email_id):
-    user, company = get_user(request)
+    # user, company = get_user(request)
     email = Email.objects.get(id=email_id)
+    company = email.company
     person = email.person
     question = email.question
     print("Survey person:", person)
