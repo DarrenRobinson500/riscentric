@@ -392,6 +392,11 @@ def convert_id_to_string(df):
             df[name_string] = df[name_string].map(map_name)
     return df
 
+def change_sheet_name(request, id, current_sheet):
+    file = File.objects.get(id=id)
+    file.rename_sheet(current_sheet)
+    return redirect("files")
+
 # -----------------------
 # ---- Development ------
 # -----------------------

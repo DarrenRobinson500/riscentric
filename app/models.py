@@ -6,6 +6,7 @@ from .df_formats import *
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import openpyxl as xl
 
 class Company(Model):
     model_name = "company"
@@ -221,13 +222,16 @@ class To_do(Model):
     def __str__(self): return f"{self.name}"
 
 required_fields_dict = {
-    'Logic': ["last_question", "next_question", "last_answer"]
+    'People': ["email", "area"],
+    'Questions': ["question", "choices"],
+    'Pings': ['ping', 'email', 'question',],
+    'Logic': ["last_question", "next_question", "last_answer"],
 }
 
 
 class File(Model):
     TYPE_CHOICES = [
-        ("People, Questions, Pings", "People, Questions, Pings"),
+        # ("People, Questions, Pings", "People, Questions, Pings"),
         ("People", "People"),
         ("Questions", "Questions"),
         ("Pings", "Pings"),
@@ -244,21 +248,40 @@ class File(Model):
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
 
     def __str__(self):
-        return f"{self.name} ({self.company})"
+        return f"{self.name}"
 
     def message(self):
         text = ""
-        if self.type == "Logic":
-            df = pd.read_excel(self.document, sheet_name="Logic")
-            required_fields = required_fields_dict['Logic']
-            for field in required_fields:
-                if field not in df.columns:
-                    error = f"<li>Missing field: '{field}'.</li>"
-                    print(error)
-                    text += error
+        file_type = str(self.type)
+        # if self.type == "Logic":
+        try:
+            df = pd.read_excel(self.document, sheet_name=file_type)
+        except:
+            sheets = pd.ExcelFile(self.document).sheet_names
+            return f"<li>There is no sheet named <b>'{file_type}'</b> in this workbook.</li>"
+        required_fields = required_fields_dict[file_type]
+        for field in required_fields:
+            if field not in df.columns:
+                error = f"<li>Missing field: '{field}'.</li>"
+                text += error
         return text
 
+    def sheets(self):
+        return pd.ExcelFile(self.document).sheet_names
 
+    # def rename_sheet(self, current_sheet_name):
+    #     # ss = pd.read_excel(self.document.path)
+    #
+    #     # file_path = self.document.path
+    #     workbook = xl.load_workbook(self.document)
+    #     sheet = workbook[current_sheet_name]
+    #     sheet.title = self.type
+    #     workbook.save(self.document)
+
+        # ss = xl.load_workbook(self.document, read_only=False)
+        # ss_sheet = ss[current_sheet_name]
+        # ss_sheet.title = self.type
+        # ss.save(self.document)
 
     def html_people(self): return self.html("People")
     def html_questions(self): return self.html("Questions")
@@ -267,7 +290,10 @@ class File(Model):
 
     def html(self, file_type):
         if not file_type in self.type: return ""
-        df = pd.read_excel(self.document, sheet_name=file_type)
+        try:
+            df = pd.read_excel(self.document, sheet_name=file_type)
+        except:
+            return ""
         df_html = df.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
         df_html = f"<b>{file_type}</b><br>" + df_html
         return df_html

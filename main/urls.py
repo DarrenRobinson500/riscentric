@@ -34,6 +34,7 @@ urlpatterns = [
     # path("file_link", file_link, name="file_link"),
     # path("view_url/<id>", view_url, name="view_url"),
     path("file_to_db/<id>", file_to_db, name="file_to_db"),
+    path("change_sheet_name/<id>/<current_sheet>", change_sheet_name, name="change_sheet_name"),
 
     # path("file_view/<id>", file_view, name="file_view"),
     # path("file_to_db_questions/<id>", file_to_db_questions, name="file_to_db_questions"),

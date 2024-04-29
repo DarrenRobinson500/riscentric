@@ -1,7 +1,9 @@
 {% extends 'base.html'%}
 {% block content %}
 
-<h2>Files</h2><br>
+<h2>Files</h2>
+<a class="btn btn-yak" href="{% url 'file_upload' %}" style="background-color: {{ company.colour }};">Upload File</a>
+<br>
 <hr>
     {% for item in company.files %}
         <h3>{{ forloop.counter }}. {{ item }}</h3>
@@ -15,12 +17,22 @@
         {{ item.html_questions | safe }}
         {{ item.html_pings | safe }}
         {{ item.html_logic | safe }}
-
+<br>
         {% if item.message %}
-            <div class="alert alert-danger"><strong>Warning!</strong><ul>{{ item.message | safe }}</ul></div>
+            <div class="alert alert-danger"><strong><p>Warning!</p></strong><ul>{{ item.message | safe }}</ul>
+            {% if item.type not in item.sheets %}
+                <p>The available sheets are listed below. Change one of these to '{{ item.type }}'.</p>
+                <ul>
+                {% for sheet in item.sheets %}
+                    <li>{{sheet}}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            </div>
         {% else %}
             <a href="{% url 'file_to_db' item.id %}" class='btn btn-yak' style="background-color: {{ company.colour }};">Load into DB</a>
         {% endif %}
+        <a class="btn btn-yak" href="{% url 'delete' 'file' item.id %}" style="background-color: {{ company.colour }};">Delete File</a>
 
 <br><br>
         <hr>
