@@ -221,7 +221,7 @@ class To_do(Model):
     def __str__(self): return f"{self.name}"
 
 required_fields_dict = {
-    'Logic': ["last_question", "next_question", "response"]
+    'Logic': ["last_question", "next_question", "last_answer"]
 }
 
 
