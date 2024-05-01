@@ -33,7 +33,7 @@ class Company(Model):
         if web_site:
             image = ""
         else:
-            image = "<img src=\"cid:image\"></body></html><br>"
+            image = "<img src='cid:image' width='600'><br>"
 
         if self.email_text:
             main = self.email_text

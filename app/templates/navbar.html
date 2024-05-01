@@ -18,9 +18,9 @@
       </div>
     </nav>
 {% else %}
-    <nav class="navbar navbar-light navbar-expand-xl" style="background-color: #0D6EFD;">
+    <nav class="navbar navbar-light navbar-expand-xl" style="background-color: {{ company.colour }}; color: {{company.colour_text}};">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'home' %}" style="color: #fff;"><b>Riscourage</b></a>
+        <a class="navbar-brand" href="{% url 'home' %}" style="color: {{company.colour_text}};"><b>{{ company.name }}</b></a>
       </div>
     </nav>
 {% endif %}
