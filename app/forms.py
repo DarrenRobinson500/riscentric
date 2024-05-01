@@ -7,6 +7,18 @@ class NewCompanyForm(ModelForm):
         fields = ("name", )
         widgets = {"name": TextInput(attrs={"class": "form-control", "placeholder": ""}),}
 
+class CompanyForm(ModelForm):
+    class Meta:
+        model = Company
+        fields = ("name", "colour", "colour_text", "email_subject", "email_text")
+        widgets = {
+            "name": TextInput(attrs={"class": "form-control", "placeholder": ""}),
+            "colour": TextInput(attrs={"class": "form-control", "placeholder": ""}),
+            "colour_text": TextInput(attrs={"class": "form-control", "placeholder": ""}),
+            "email_subject": TextInput(attrs={"class": "form-control", "placeholder": ""}),
+            "email_text": Textarea(attrs={"class": "form-control", "placeholder": ""}),
+        }
+
 class FileForm(ModelForm):
     class Meta:
         model = File

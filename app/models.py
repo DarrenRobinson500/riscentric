@@ -14,6 +14,8 @@ class Company(Model):
     icon = ImageField(null=True, blank=True, upload_to="images/")
     colour = CharField(max_length=10, null=True, blank=True, default="#A6C9EC")
     colour_text = CharField(max_length=10, null=True, blank=True, default="#ffffff")
+    email_subject = TextField(null=True, blank=True)
+    email_text = TextField(null=True, blank=True)
 
     def __str__(self): return self.name
     def question_sets(self): return QuestionSet.objects.filter(company=self)
@@ -21,6 +23,26 @@ class Company(Model):
     def people(self): return Person.objects.filter(company=self).order_by("email_address")
     def pings(self): return Ping.objects.filter(company=self).order_by("name")
     def logic(self): return Logic.objects.filter(company=self).order_by("last_question")
+
+    def email_html_web(self):
+        return self.email_html(web_site=True)
+
+    def email_html(self, web_site=False):
+        div_1 = "<div style='text-align: center;'>"
+
+        if web_site:
+            image = ""
+        else:
+            image = "<img src=\"cid:image\"></body></html><br>"
+
+        if self.email_text:
+            main = self.email_text
+        else:
+            main = "<b>No company specific text provided</b>"
+        end = "</div>"
+        result = div_1 + image + main + end
+        return result
+
 
 # class UserM(AbstractUser):
 #     company = ForeignKey(Company, null=True, blank=True, on_delete=SET_NULL)
@@ -117,9 +139,9 @@ class Ping(Model):
     def questions(self):
         questions = set()
         for person_question in self.person_questions():
-            print("Ping questions:", person_question, person_question.company, self.company)
+            # print("Ping questions:", person_question, person_question.company, self.company)
             if person_question.company == self.company:
-                print("Adding", person_question.question)
+                # print("Adding", person_question.question)
                 questions.add(person_question.question)
         return questions
     def grouped_person_questions_answers(self):
@@ -136,7 +158,7 @@ class Ping(Model):
             counter = Counter(question[2])
             for item, count in counter.items():
                 question[3].append((item, count))
-        print("Grouped person questions:", result)
+        # print("Grouped person questions:", result)
         return result
 
     def response_distribution(self):

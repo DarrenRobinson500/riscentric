@@ -32,30 +32,22 @@ account = Account(
 )
 
 
-def send_microsoft_email(email, recipients):
-
-    # text = f"Hello World {datetime.now()}"
-    # html_template = "<html><body>Hello, here's your image: <img src=\"cid:image\"></body></html>"
+def send_microsoft_email(email, recipients, send=True):
 
     div_1 = "<div style='text-align: center;'>"
     image = "<img src=\"cid:image\"></body></html>"
-    # line1 = "<p style='margin: 0;'>Less than 30 seconds of your time to get your view on a single question about risk.</p>"
-    # line2 = "<p style='margin: 0;'>Thank you for you participation.</p><br>"
-    # line3 = "<p style='margin: 0;'>Click here to answer the question.</p>"
-    # div_2 = "<div style='text-align: center'>"
-    # html_template = div_1 + image + line1 + line2 + line3 + div_2
 
     context = {"email": email}
     print("Email:", email)
     html_template = div_1 + image + render_to_string('email_template.html', context)
+    html_template = email.company.email_html()
+    html_template = html_template.replace("{{ email.id }}", str(email.id))
 
-    # email_body = HTMLBody(html_content)
+    print("html_template")
+    print(html_template)
+
     body=HTMLBody(html_template)
-    subject = "We want your view"
-
-    # body = "Text content"
-    from_email = email_address
-    # recipients = ["darrenandamanda.robinson@gmail.com", ]
+    subject = email.company.email_subject
 
     to_recipients = []
     for recipient in recipients:
@@ -76,8 +68,8 @@ def send_microsoft_email(email, recipients):
                 content_id="image",  # Use a unique content ID
             )
             message.attach(image_attachment)
-
-        message.send_and_save()
+        if send:
+            message.send_and_save()
     except:
         email.answer = "Failed to send"
         email.save()

@@ -1,0 +1,19 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block content %}
+<br>
+<h1>{{ company }}</h1>
+
+<form class="form-inline my-2 my-lg-0" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-yak" style="background-color: {{ company.colour }};">{% if mode == "New" %}Create{% else %}Update{% endif %}</button>
+</form>
+
+<hr>
+<div style='text-align: center;'>
+    <img src="{% static 'image.png' %}" alt="My Image" height="180" style="margin-left: 10px; padding: 10px;">
+    {{ company.email_html_web | safe }}
+</div>
+<hr>
+{% endblock %}

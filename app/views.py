@@ -77,9 +77,9 @@ def logout_user(request):
     logout(request)
     return redirect("login")
 
-# -----------------------
-# ---- New Company ------
-# -----------------------
+# -------------------
+# ---- Company ------
+# -------------------
 
 def company_new(request):
     if not request.user.is_authenticated: return redirect("login")
@@ -98,13 +98,26 @@ def company_new(request):
             for key, string in form.errors.items():
                 print(key, string)
     context = {"form": form, "company": company}
-    return render(request, "new_company.html", context)
+    return render(request, "company_new.html", context)
 
 def company_delete(request, id):
     if not request.user.is_authenticated: return redirect("login")
     company = Company.objects.get(id=id)
     company.delete()
     return redirect('home')
+
+def company_edit(request):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    form = CompanyForm(instance=company)
+    if request.method == "POST":
+        form = CompanyForm(request.POST or None, instance=company)
+        if form.is_valid():
+            form.save()
+            return redirect("company_edit")
+    context = {"form": form, "company": company}
+    return render(request, "company_edit.html", context)
+
 
 # ---------------------
 # ---- Utilities ------

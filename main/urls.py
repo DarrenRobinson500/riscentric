@@ -11,6 +11,7 @@ urlpatterns = [
     path('login/', login_user, name="login"),
     path('logout/', logout_user, name="logout"),
     path("company_new", company_new, name="company_new"),
+    path("company_edit", company_edit, name="company_edit"),
     path("company_delete/<id>", company_delete, name="company_delete"),
     path("set_current_company/<id>", set_current_company, name="set_current_company"),
     # path("question_set/<id>", question_set, name="question_set"),

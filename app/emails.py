@@ -26,7 +26,7 @@ def send_email_logic(ping):
         # text_content = strip_tags(html_content)
 
         # create the email message
-        send_microsoft_email(email, [to])
+        send_microsoft_email(email, [to], send=True)
 
         # msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         # msg.attach_alternative(html_content, "text/html")
