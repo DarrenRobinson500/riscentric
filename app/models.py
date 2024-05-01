@@ -135,7 +135,7 @@ class Ping(Model):
     name = TextField(null=True, blank=True)
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     def person_questions(self):
-        return Person_Question.objects.filter(ping=self).filter(company=self.company)
+        return Person_Question.objects.filter(ping=self).filter(company=self.company).order_by('person')
     def questions(self):
         questions = set()
         for person_question in self.person_questions():
@@ -199,7 +199,12 @@ class Person_Question(Model):
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     answer = TextField(null=True, blank=True)
     answer_date = DateTimeField(null=True, blank=True)
-    def __str__(self): return f"{self.person.email_address} => {self.question.question}"
+    def __str__(self):
+        if self.answer:
+            return f"{self.person.email_address} => {self.question.question} => {self.answer}"
+        else:
+            return f"{self.person.email_address} => {self.question.question}"
+
     def emails(self): return Email.objects.filter(person_question=self)
 
 class Send(Model):
@@ -279,7 +284,7 @@ class File(Model):
         try:
             df = pd.read_excel(self.document, sheet_name=file_type)
         except:
-            sheets = pd.ExcelFile(self.document).sheet_names
+            # sheets = pd.ExcelFile(self.document).sheet_names
             return f"<li>There is no sheet named <b>'{file_type}'</b> in this workbook.</li>"
         required_fields = required_fields_dict[file_type]
         for field in required_fields:
