@@ -1,7 +1,16 @@
 {% extends 'base.html'%}
 {% block content %}
+{% load static %}
+<div>
+    <img src="{% static 'ball.png' %}"  height="80" style="float: right; margin-left: 10px; padding: 10px;">
+</div>
+
 <div style='text-align: center;'>
-    <br><br>
+    <br><br><br>
 <h1>Thank you for providing your view. </h1>
+    <br><br>
+
+When finished, please feel free to close the window.
+
 </div>
 {% endblock %}
