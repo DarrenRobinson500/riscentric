@@ -44,9 +44,6 @@ def send_microsoft_email(email, recipients, send=True):
     html_template = html_template.replace("{{ email.id }}", str(email.id))
     html_template = html_template.replace("{{ ping.name }}", email.ping.name)
 
-    print("html_template")
-    print(html_template)
-
     body=HTMLBody(html_template)
     subject = email.company.email_subject
 

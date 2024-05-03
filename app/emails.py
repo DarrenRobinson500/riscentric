@@ -19,7 +19,7 @@ def send_email_logic(ping):
         email = Email(company=ping.company, ping=ping, person=person, question=question, person_question=person_question)
         email.save()
         context = {"email": email}
-        print("Email:", email)
+        # print("Email:", email)
         # html_content = render_to_string('email_template.html', context)
 
         # create a plain text version of the email

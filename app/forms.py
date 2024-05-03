@@ -59,6 +59,8 @@ def get_form(model):
 
 def get_model(model_str):
     for model in all_models:
+        print(model.model_name, model_str, model.model_name == model_str)
         if model.model_name == model_str:
+            print("Get model", model, get_form(model))
             return model, get_form(model)
-    return None
+    return None, None

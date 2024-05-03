@@ -19,7 +19,7 @@
         {{ item.html_logic | safe }}
 <br>
         {% if item.message %}
-            <div class="alert alert-danger"><strong><p>Warning!</p></strong><ul>{{ item.message | safe }}</ul>
+            <div class="alert alert-danger"><strong><p>Warning!</p></strong><ol>{{ item.message | safe }}</ol>
             {% if item.type not in item.sheets %}
                 <p>The available sheets are listed below. Change one of these to '{{ item.type }}'.</p>
                 <ul>

@@ -20,7 +20,17 @@
         <td>
             <ul>
                 {% for person_question in person_questions %}
-                    <li>{{ person_question.person.name | capfirst}} {% if person_question.answer %}(Responded){% else %} ({{ person_question.person.email_address }}){% endif %}</li>
+                    <li>
+                        {{ person_question.person.email_address }}
+                        {% if person_question.answer %}
+                            (Responded)
+                        {% elif person_question.viewed %}
+                            (Viewed)
+                        {% else %}
+                            (Not viewed)
+                        {% endif %}
+
+                    </li>
                 {% endfor %}
             </ul>
         </td>

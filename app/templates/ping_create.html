@@ -16,5 +16,17 @@
 </table>
 <a class='btn btn-yak btn-sm' href="{% url 'ping_save' %}" style="background-color: {{ company.colour }};">Save Ping</a>
 
+<h1>Logic</h1>
 
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: {{ company.colour }};"><th>Last Question</th><th>Last Answer</th><th>Next Question</th></tr>
+    {% for item in company.logic %}
+    <tr>
+        <td>{{ item.last_question.question }}</td>
+        <td>{{ item.last_answer }}</td>
+        <td>{{ item.next_question.question }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br><br>
 {% endblock %}

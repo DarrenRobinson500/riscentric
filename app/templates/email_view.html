@@ -22,6 +22,7 @@
                         {% for choice in email.question.choices_split %}
                             <a href="{% url 'survey_admin' email.id choice %}" class='btn btn-sm' style="background-color: {{ company.colour }};">{{ choice }}</a>
                         {% endfor %}
+                        <a href="{% url 'survey_admin' email.id None %}" class='btn btn-sm' style="background-color: {{ company.colour }};">None</a>
                     </td>
                     {% endif %}
                 </tr>

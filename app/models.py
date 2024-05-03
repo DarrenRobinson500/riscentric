@@ -16,6 +16,7 @@ class Company(Model):
     colour_text = CharField(max_length=10, null=True, blank=True, default="#ffffff")
     email_subject = TextField(null=True, blank=True)
     email_text = TextField(null=True, blank=True)
+    active = BooleanField(default=True)
 
     def __str__(self): return self.name
     def question_sets(self): return QuestionSet.objects.filter(company=self)
@@ -134,6 +135,8 @@ class Ping(Model):
     model_name = "ping"
     name = TextField(null=True, blank=True)
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+
+
     def person_questions(self):
         return Person_Question.objects.filter(ping=self).filter(company=self.company).order_by('person')
     def questions(self):
@@ -197,6 +200,7 @@ class Person_Question(Model):
     ping = ForeignKey(Ping, null=True, blank=True, on_delete=CASCADE)
     person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
+    viewed = BooleanField(default=False)
     answer = TextField(null=True, blank=True)
     answer_date = DateTimeField(null=True, blank=True)
     def __str__(self):
@@ -255,6 +259,15 @@ required_fields_dict = {
     'Logic': ["last_question", "next_question", "last_answer"],
 }
 
+def df_to_db_logic_errors(df, company):
+    errors = []
+    for index, row in df.iterrows():
+        last_question = Question.objects.filter(company=company, question=row['last_question'])
+        next_question = Question.objects.filter(company=company, question=row['next_question'])
+        if len(last_question) == 0: errors.append(f"<b>No last question:</b> LQ: {row['last_question']} LA: {row['last_answer']} NQ: {row['next_question']}")
+        if len(next_question) == 0: errors.append(f"<b>No next question:</b> LQ: {row['last_question']} LA: {row['last_answer']} NQ: {row['next_question']}")
+    return errors
+
 
 class File(Model):
     TYPE_CHOICES = [
@@ -280,7 +293,6 @@ class File(Model):
     def message(self):
         text = ""
         file_type = str(self.type)
-        # if self.type == "Logic":
         try:
             df = pd.read_excel(self.document, sheet_name=file_type)
         except:
@@ -291,6 +303,12 @@ class File(Model):
             if field not in df.columns:
                 error = f"<li>Missing field: '{field}'.</li>"
                 text += error
+        if self.type == "Logic":
+            errors = df_to_db_logic_errors(df, self.company)
+            for error in errors:
+                text += f"<li>{error}</li>"
+
+
         return text
 
     def sheets(self):
@@ -330,4 +348,4 @@ class File(Model):
         self.document.delete()
         super().delete(*args, **kwargs)
 
-all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File, CustomUser, To_do]
+all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File, CustomUser, To_do, Logic]

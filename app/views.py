@@ -118,6 +118,11 @@ def company_edit(request):
     context = {"form": form, "company": company}
     return render(request, "company_edit.html", context)
 
+def company_activate(request, id):
+    company = Company.objects.get(id=id)
+    company.active = not company.active
+    company.save()
+    return redirect("home")
 
 # ---------------------
 # ---- Utilities ------
@@ -250,6 +255,9 @@ def survey(request, email_id):
     company = email.company
     person = email.person
     question = email.question
+    person_question = email.person_question
+    person_question.viewed = True
+    person_question.save()
     print("Survey person:", person)
     print("Survey question:", question)
     context = {"email": email, 'company': company}
@@ -271,6 +279,7 @@ def survey_admin(request, email_id, answer_string):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
     email = Email.objects.get(id=email_id)
+    if answer_string == "None": answer_string = None
     email.answer = answer_string
     email.answer_date = datetime.now()
     email.save()
@@ -492,4 +501,11 @@ def delete(request, model_str, id):
     if item: item.delete()
     return redirect("list_view", model_str)
 
-
+def delete_all(request, model_str):
+    model, form = get_model(model_str)
+    user, company = get_user(request)
+    items = model.objects.filter(company=company)
+    items.delete()
+    if model_str == "logic":
+        return redirect("logic")
+    return redirect("home")

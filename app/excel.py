@@ -71,7 +71,6 @@ def df_to_db_pings(df, company):
             Person_Question(company=company, ping=ping, person=person, question=question).save()
 
 def df_to_db_logic(df, company):
-    general = General.objects.all().first()
     for index, row in df.iterrows():
         last_question = Question.objects.filter(company=company, question=row['last_question']).first()
         next_question = Question.objects.filter(company=company, question=row['next_question']).first()

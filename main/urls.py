@@ -13,6 +13,7 @@ urlpatterns = [
     path("company_new", company_new, name="company_new"),
     path("company_edit", company_edit, name="company_edit"),
     path("company_delete/<id>", company_delete, name="company_delete"),
+    path("company_activate/<id>", company_activate, name="company_activate"),
     path("set_current_company/<id>", set_current_company, name="set_current_company"),
     # path("question_set/<id>", question_set, name="question_set"),
     path("survey/<email_id>", survey, name="survey"),
@@ -54,6 +55,7 @@ urlpatterns = [
     path("edit/<model_str>/<id>", edit, name="edit"),
     path("toggle_value/<id>/<parameter>", toggle_value, name="toggle_value"),
     path("delete/<model_str>/<id>", delete, name="delete"),
+    path("delete_all/<model_str>/", delete_all, name="delete_all"),
     path("development", development, name="development"),
 ]
 
