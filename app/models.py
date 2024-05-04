@@ -97,6 +97,19 @@ class QuestionSet(Model):
     def __str__(self): return "[" + str(self.date) + "] " + self.name[0:50]
     def questions(self): return Question.objects.filter(question_set=self).order_by("schedule_date")
 
+def add_lines(text, gap=40):
+    l = len(text)
+    r = range(gap, l, gap)
+    for x in r:
+        position, found = x, False
+        while not found and position < l:
+            if text[position] == " ":
+                text = text[:position] + "X" + text[position + 1:]
+                found = True
+            position += 1
+    print("Add lines:", text)
+    return text
+
 class Question(Model):
     model_name = "question"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
@@ -122,6 +135,8 @@ class Question(Model):
         return answer_array
     def responses(self):
         return Email.objects.filter(question=self).order_by('id')
+    def question_viz(self):
+        return add_lines(self.question)
 
 class Answer(Model):
     model_name = "answer"

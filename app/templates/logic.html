@@ -1,5 +1,6 @@
 {% extends 'base.html'%}
 {% block content %}
+{% load filter %}
 
 <h1>Logic</h1>
 
@@ -16,6 +17,14 @@
 
 <a href="{% url 'delete_all' 'logic' %}" class='btn btn-sm btn-danger'>Delete All</a>
 
+<br><br>
+
+http://www.graphviz.org/<br>
+digraph G {<br>
+    {% for item in company.logic %}
+        "{{ item.last_question.question_viz | display_backslash_n | safe }}" -> "{{ item.next_question.question_viz  | display_backslash_n | safe }}" [label="{{ item.last_answer }}"];<br>
+    {% endfor %}
+}
 <br><br>
 
 
