@@ -19,7 +19,7 @@
 
 <br><br>
 
-http://www.graphviz.org/<br>
+<a href="https://sketchviz.com/" target="_blank">SketchViz</a><br><br>
 digraph G {<br>
     {% for item in company.logic %}
         "{{ item.last_question.question_viz | display_backslash_n | safe }}" -> "{{ item.next_question.question_viz  | display_backslash_n | safe }}" [label="{{ item.last_answer }}"];<br>
