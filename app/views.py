@@ -470,12 +470,12 @@ def new(request, model_str):
     user, company = get_user(request)
     model, form = get_model(model_str)
     if request.method == 'POST':
-        form = form(request.POST)
+        form = form(request.POST, company=company)
         if form.is_valid():
             new = form.save()
             if model_str == "period": new.create_files()
             return redirect('list_view', model_str)
-    form = form()
+    form = form(company=company)
     context = {'company': company, 'form':form, 'model_str': model_str, 'mode': 'New'}
     return render(request, 'new.html', context)
 
@@ -485,13 +485,18 @@ def edit(request, model_str, id):
     model, form = get_model(model_str)
     item = model.objects.get(id=id)
     if request.method == 'POST':
-        form = form(request.POST or None, instance=item)
+        if model_str == "logic":
+            form = form(request.POST or None, instance=item, initial={'company': company})
+        else:
+            form = form(request.POST or None, instance=item)
         if form.is_valid():
             new = form.save()
             if model_str == "period":
                 new.create_file()
+            if model_str == "logic":
+                return redirect('logic')
             return redirect('list_view', model_str)
-    form = form(instance=item)
+    form = form(instance=item, initial={'company': company})
     context = {'company': company, 'form':form, 'model_str': model_str, 'mode': 'Edit'}
     return render(request, 'new.html', context)
 

@@ -1,0 +1,31 @@
+{% extends 'base.html'%}
+{% block content %}
+{% load filter %}
+
+<h1>Logic</h1>
+
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: {{ company.colour }};"><th>Last Question</th><th>Last Answer</th><th>Next Question</th></tr>
+    {% for item in company.questions %}
+    <tr>
+        <td>{{ item.last_question.question }}</td>
+        <td>{{ item.last_answer }}</td>
+        <td>{{ item.next_question.question }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="{% url 'delete_all' 'logic' %}" class='btn btn-sm btn-danger'>Delete All</a>
+
+<br><br>
+
+<a href="https://sketchviz.com/" target="_blank">SketchViz</a><br><br>
+digraph G {<br>
+    {% for item in company.logic %}
+        "{{ item.last_question.question_viz | display_backslash_n | safe }}" -> "{{ item.next_question.question_viz  | display_backslash_n | safe }}" [label="{{ item.last_answer }}"];<br>
+    {% endfor %}
+}
+<br><br>
+
+
+{% endblock %}

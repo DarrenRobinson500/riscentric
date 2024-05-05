@@ -24,6 +24,7 @@ class Company(Model):
     def people(self): return Person.objects.filter(company=self).order_by("email_address")
     def pings(self): return Ping.objects.filter(company=self).order_by("name")
     def logic(self): return Logic.objects.filter(company=self).order_by("last_question")
+    def questions(self): return Question.objects.filter(company=self).order_by("ref")
 
     def email_html_web(self):
         return self.email_html(web_site=True)
@@ -107,7 +108,7 @@ def add_lines(text, gap=40):
                 text = text[:position] + "X" + text[position + 1:]
                 found = True
             position += 1
-    print("Add lines:", text)
+    # print("Add lines:", text)
     return text
 
 class Question(Model):
@@ -115,9 +116,27 @@ class Question(Model):
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     question = TextField(null=True, blank=True)
     choices = CharField(max_length=255, blank=True)
-    def __str__(self): return f"{self.company}: {self.question}"
+    ref = CharField(max_length=20, blank=True, default="")
+
+    def __str__(self): return self.question
     def choices_split(self):
         return self.choices.split(',')
+    def choices_and_next_question(self):
+        choices = self.choices.split(',')
+        result = []
+        for choice in choices:
+            choice = choice.strip()
+            logic = Logic.objects.filter(last_question=self, last_answer=choice).first()
+            next_question = None
+            if not logic:
+                logic = Logic(last_question=self, last_answer=choice)
+                logic.save()
+            next_question = logic.next_question
+            print(f"Choices: '{self.question}' '{choice}' '{next_question}'")
+            result.append((choice, next_question, logic.id))
+
+        return result
+
     def response_rate(self):
         emails_sent = len(Email.objects.filter(question=self))
         responses_received = len(Email.objects.filter(question=self, answer__isnull=False))

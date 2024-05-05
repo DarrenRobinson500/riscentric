@@ -39,6 +39,25 @@ class LinkForm(ModelForm):
             ),
         }
 
+class LogicForm(ModelForm):
+    class Meta:
+        model = Logic
+        fields = ("last_question", "last_answer", "next_question",)
+        widgets = {
+            "last_question": Select(attrs={"class": "form-control"}),
+            "last_answer": TextInput(attrs={"class": "form-control", "placeholder": ""}),
+            "next_question": Select(attrs={"class": "form-control"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Get the selected company (assuming it's passed as an argument)
+        the_company = kwargs.get('initial', {}).get('company')
+        print("Logic Form:", the_company)
+
+        # Filter the base_rate choices based on the selected company
+        self.fields['next_question'].queryset = Question.objects.filter(company=the_company)
+
 class To_DoForm(ModelForm):
     class Meta:
         model = To_do
@@ -51,6 +70,7 @@ class To_DoForm(ModelForm):
 
 form_library = {
     To_do: To_DoForm,
+    Logic: LogicForm
 }
 
 def get_form(model):
