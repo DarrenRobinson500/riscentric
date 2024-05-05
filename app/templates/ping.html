@@ -19,19 +19,22 @@
         </td>
         <td>
             <ul>
-                {% for person_question in person_questions %}
-                    <li>
-                        {{ person_question.person.email_address }}
-                        {% if person_question.answer != "None" and person_question.answer != "Viewed" %}
-                            (Responded)
-                        {% elif person_question.viewed %}
-                            (Viewed)
-                        {% else %}
-                            (Not viewed)
-                        {% endif %}
-
-                    </li>
-                {% endfor %}
+                        <table class='table table-fixed'>
+                            <thead>
+                                <tr style="color: {{company.colour_text}}; background-color: {{ company.lighter_colour }};">
+                                    <th class="w-25">Email</th>
+                                    <th class="w-50">Question</th>
+                                    <th class="w-25">Answer</th>
+                                </tr>
+                            </thead>
+                            {% for person_question in person_questions %}
+                            <tr>
+                                <td>{{ person_question.details.0 }}</td>
+                                <td>{{ person_question.details.1 }}</td>
+                                <td>{{ person_question.details.2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
             </ul>
         </td>
         <td>
