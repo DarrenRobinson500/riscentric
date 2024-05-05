@@ -53,7 +53,6 @@ def df_to_db_questions(df, company):
             ref = row['ref']
         existing_record = Question.objects.filter(company=company, question=row['question']).first()
         if existing_record:
-            print("DF to DB Questions (existing):\n", row, ref)
             existing_record.ref = ref
             existing_record.choices = row['choices']
             existing_record.save()
@@ -71,7 +70,7 @@ def df_to_db_pings(df, company):
     for index, row in df.iterrows():
         if not Ping.objects.filter(company=company, name=row['ping']).exists():
             Ping(company=company, name=row['ping']).save()
-            print("Ping created:", row['ping'])
+            # print("Ping created:", row['ping'])
         ping = Ping.objects.filter(company=company, name=row['ping']).first()
         person = Person.objects.filter(company=company, email_address=row['email']).first()
         question = Question.objects.filter(company=company, question=row['question']).first()
@@ -89,7 +88,7 @@ def df_to_db_logic(df, company):
             Logic(company=company, last_question=last_question, last_answer=row['last_answer'], next_question=next_question).save()
         else:
             if existing.next_question != next_question:
-                print("Existing next answer:", existing.next_question, next_question)
+                # print("Existing next answer:", existing.next_question, next_question)
                 existing.next_question = next_question
                 existing.save()
 
