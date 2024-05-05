@@ -5,14 +5,14 @@
 <h1>Logic</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: {{ company.colour }};"><th>Last Question</th><th>Last Answer</th><th>Next Question</th><th>Action</th></tr>
+    <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};"><th>Last Question</th><th>Last Answer</th><th>Next Question</th><th>Action</th></tr>
     {% for question in company.questions %}
         {% for choice, next_question, logic_id in question.choices_and_next_question %}
             <tr>
                 <td>{{ question }}</td>
                 <td>{{ choice }}</td>
                 <td {% if not next_question %} style="background-color: {{ company.lighter_colour }};" {% endif %}>{{ next_question }}</td>
-                <td><a href="{% url 'edit' 'logic' logic_id %}" class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};">Edit</a></td>
+                <td><a href="{% url 'edit' 'logic' logic_id %}" class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Edit</a></td>
             </tr>
         {% endfor %}
     {% endfor %}
@@ -20,7 +20,18 @@
 
 <a href="{% url 'delete_all' 'logic' %}" class='btn btn-sm btn-danger'>Delete All</a>
 
-<br><br>
+<br><hr>
+<h1>Logic Rules</h1>
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: {{ company.colour }};"><th>Last Question</th><th>Last Answer</th><th>Next Question</th></tr>
+    {% for item in company.logic %}
+    <tr>
+        <td>{{ item.last_question.question }}</td>
+        <td>{{ item.last_answer }}</td>
+        <td>{{ item.next_question.question }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
 
 

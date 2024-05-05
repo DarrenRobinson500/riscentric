@@ -4,7 +4,7 @@
 <h1>People</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: {{ company.colour }};"><th>First Name</th><th>Email</th><th>Area</th></tr>
+    <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};"><th>First Name</th><th>Email</th><th>Area</th></tr>
     {% for person in people %}
     <tr>
         <td>{{ person.firstname }}</td>

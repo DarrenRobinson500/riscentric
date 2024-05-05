@@ -3,7 +3,7 @@ import pandas as pd
 from office365.runtime.auth.user_credential import UserCredential
 from office365.sharepoint.client_context import ClientContext
 from office365.sharepoint.files import file
-
+import math
 import base64
 import io
 import urllib.request
@@ -37,7 +37,6 @@ def dfs_from_file(file):
 
 
 def df_to_db_people(df, company):
-    general = General.objects.all().first()
     for index, row in df.iterrows():
         if not Person.objects.filter(company=company, email_address=row['email']).exists():
             Person(company=company, email_address=row['email'], area=row['area']).save()
@@ -83,14 +82,32 @@ def df_to_db_logic(df, company):
     for index, row in df.iterrows():
         last_question = Question.objects.filter(company=company, question=row['last_question']).first()
         next_question = Question.objects.filter(company=company, question=row['next_question']).first()
-        existing = Logic.objects.filter(company=company, last_question=last_question, last_answer=row['last_answer']).first()
+        last_answer = row['last_answer']
+        if not type(last_answer) is str and math.isnan(last_answer): last_answer = "None"
+        print("df_to_db_logic:", last_answer, type(last_answer))
+
+        existing = Logic.objects.filter(company=company, last_question=last_question, last_answer=last_answer).first()
         if not existing:
-            Logic(company=company, last_question=last_question, last_answer=row['last_answer'], next_question=next_question).save()
+            print("DF to db logic - creating new record")
+            Logic(company=company, last_question=last_question, last_answer=last_answer, next_question=next_question).save()
         else:
             if existing.next_question != next_question:
-                # print("Existing next answer:", existing.next_question, next_question)
+                print("Existing record found - updating next answer:", existing.next_question, next_question)
                 existing.next_question = next_question
                 existing.save()
+
+    # Delete existing records that aren't in the spreadsheet
+    # existing_records = Logic.objects.filter(company=company)
+    # for record in existing_records:
+    #     if not record.last_question in df['last_question'].values:
+    #         print("Deleting (no last question found):", record)
+    #         if record.id:
+    #             record.delete()
+    #     if not record.last_answer in df['last_answer'].values:
+    #         print("Deleting (no last answer found):", record)
+    #         if record.id:
+    #             record.delete()
+
 
 def company_names(id): return Company.objects.get(id=id).name
 def ping_names(id): return Ping.objects.get(id=id).name

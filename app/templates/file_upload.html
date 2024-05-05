@@ -6,7 +6,7 @@
     {% csrf_token %}
     {{ form }}
     <br>
-    <button type="submit" class="btn" style="background-color: {{ company.colour }};">Upload file</button>
+    <button type="submit" class="btn" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Upload file</button>
   </form>
 <br><br>
 

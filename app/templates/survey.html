@@ -12,7 +12,7 @@
     </h1>
 
     {% for choice in email.question.choices_split %}
-        <a href="{% url 'survey_complete' email.id choice %}" class='btn btn-yak' style="background-color: {{ company.colour }};">{{ choice }}</a>
+        <a href="{% url 'survey_complete' email.id choice %}" class='btn btn-yak' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">{{ choice }}</a>
     {% endfor %}
     <br><br>
     <h4>

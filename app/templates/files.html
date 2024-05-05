@@ -2,7 +2,7 @@
 {% block content %}
 
 <h2>Files</h2>
-<a class="btn btn-yak" href="{% url 'file_upload' %}" style="background-color: {{ company.colour }};">Upload File</a>
+<a class="btn btn-yak" href="{% url 'file_upload' %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Upload File</a>
 <br>
 <hr>
     {% for item in company.files %}
@@ -30,9 +30,9 @@
             {% endif %}
             </div>
         {% else %}
-            <a href="{% url 'file_to_db' item.id %}" class='btn btn-yak' style="background-color: {{ company.colour }};">Load into DB</a>
+            <a href="{% url 'file_to_db' item.id %}" class='btn btn-yak' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Load into DB</a>
         {% endif %}
-        <a class="btn btn-yak" href="{% url 'delete' 'file' item.id %}" style="background-color: {{ company.colour }};">Delete File</a>
+        <a class="btn btn-yak" href="{% url 'delete' 'file' item.id %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Delete File</a>
 
 <br><br>
         <hr>

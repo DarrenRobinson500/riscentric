@@ -3,7 +3,7 @@
 <h1>Companies</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="background-color: {{ company.colour }};"><th>Company</th><th>Logo and colour</th><th>Staff</th><th>Pings</th><th>Actions</th><th>Delete</th></tr>
+    <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};"><th>Company</th><th>Logo and colour</th><th>Staff</th><th>Pings</th><th>Actions</th><th>Delete</th></tr>
     {% for comp in companies %}
         {% if comp.active %}
         <tr {% if comp==>
@@ -12,8 +12,8 @@
             <td>{{ comp.people | length }}</td>
             <td>{% for ping in comp.pings %}{{ ping.name | capfirst }}<br>{% endfor %}</td>
             <td>
-                <a href="{% url 'set_current_company' comp.id %}" class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};">Select</a>
-                <a href="{% url 'company_activate' comp.id %}" class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};">Deactivate</a>
+                <a href="{% url 'set_current_company' comp.id %}" class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Select</a>
+                <a href="{% url 'company_activate' comp.id %}" class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Deactivate</a>
             </td>
             <td><a href="{% url 'company_delete' comp.id %}" class='btn btn-sm btn-danger'>Delete</a></td>
         </tr>
@@ -27,8 +27,8 @@
             <td>{{ comp.people | length }}</td>
             <td>{% for ping in comp.pings %}{{ ping.name | capfirst }}<br>{% endfor %}</td>
             <td>
-                <a href="{% url 'set_current_company' comp.id %}" class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};">Select</a>
-                <a href="{% url 'company_activate' comp.id %}" class='btn btn-yak btn-sm' style="background-color: {{ company.colour }};">Activate</a>
+                <a href="{% url 'set_current_company' comp.id %}" class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Select</a>
+                <a href="{% url 'company_activate' comp.id %}" class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Activate</a>
             </td>
             <td><a href="{% url 'company_delete' comp.id %}" class='btn btn-sm btn-danger'>Delete</a></td>
         </tr>
@@ -36,7 +36,8 @@
     {% endfor %}
 </table>
 
-<a href="{% url 'company_new' %}" class='btn btn-yak' style="margin-top: 10px; background-color: {{ company.colour }};">New Company</a>
+<a href="{% url 'company_new' %}" class='btn btn-yak' style="margin-top: 10px; color: {{company.colour_text}}; background-color: {{ company.colour }};">New Company</a>
+
 
 <br><br>
 {% endblock %}

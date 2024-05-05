@@ -8,14 +8,16 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 import openpyxl as xl
 
+standard_email_text = 'Your views can help protect our customers. <br><a style = "color:black;" href="http://riscourage.com/survey/{{ email.id }}"><u>Click here to answer the question for {{ ping.name }}</u></a><br><br><a style = "color:black;" href="http://127.0.0.1:8000/survey/{{ email.id }}"><u>Click here to answer the question for {{ ping.name }} [Local]</u></a><br><br><span style="font-size: 8px">This email and your response are confidential. Please do not forward to anyone else. Your response is anonymous and cannot be viewed by your organisation.<span>"'
+
 class Company(Model):
     model_name = "company"
     name = CharField(max_length=255, null=True, blank=True)
     icon = ImageField(null=True, blank=True, upload_to="images/")
     colour = CharField(max_length=10, null=True, blank=True, default="#A6C9EC")
     colour_text = CharField(max_length=10, null=True, blank=True, default="#ffffff")
-    email_subject = TextField(null=True, blank=True)
-    email_text = TextField(null=True, blank=True)
+    email_subject = TextField(null=True, blank=True, default="We want your view")
+    email_text = TextField(null=True, blank=True, default=standard_email_text)
     active = BooleanField(default=True)
 
     def __str__(self): return self.name
@@ -96,7 +98,7 @@ class Person(Model):
         if last_answer:
             last_answer = last_answer.strip()
         else:
-            last_answer = "nan"
+            last_answer = "None"
         logic = Logic.objects.filter(company=self.company, last_question=last_question, last_answer=last_answer).first()
         return logic
 
@@ -136,13 +138,16 @@ class Question(Model):
         return self.choices.split(',')
     def choices_and_next_question(self):
         choices = self.choices.split(',')
+        choices.append('Viewed')
+        choices.append('None')
         result = []
         for choice in choices:
             choice = choice.strip()
-            logic = Logic.objects.filter(last_question=self, last_answer=choice).first()
-            next_question = None
+            print(f"Logic Search: LQ:'{self}' LA:'{choice}'")
+
+            logic = Logic.objects.filter(company=self.company, last_question=self, last_answer=choice).first()
             if not logic:
-                logic = Logic(last_question=self, last_answer=choice)
+                logic = Logic(company=self.company, last_question=self, last_answer=choice)
                 logic.save()
             next_question = logic.next_question
             print(f"Choices: '{self.question}' '{choice}' '{next_question}'")
@@ -182,7 +187,7 @@ class Ping(Model):
     model_name = "ping"
     name = TextField(null=True, blank=True)
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
-
+    sent = BooleanField(default=False)
 
     def person_questions(self):
         return Person_Question.objects.filter(ping=self).filter(company=self.company).order_by('person')
@@ -239,7 +244,8 @@ class Logic(Model):
     last_question = ForeignKey(Question, null=True, blank=True, related_name="last_question", on_delete=CASCADE)
     last_answer = TextField(null=True, blank=True)
     next_question = ForeignKey(Question, null=True, blank=True, related_name="next_question", on_delete=CASCADE)
-    def __str__(self): return f"{self.last_question.question} + {self.last_answer} => {self.next_question.question}"
+    def __str__(self):
+        return f"{self.last_question} + {self.last_answer} => {self.next_question}"
 
 class Person_Question(Model):
     model_name = "person_question"
@@ -248,13 +254,13 @@ class Person_Question(Model):
     person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     viewed = BooleanField(default=False)
-    answer = TextField(null=True, blank=True)
+    answer = TextField(null=True, blank=True, default="None")
     answer_date = DateTimeField(null=True, blank=True)
     def __str__(self):
         if self.answer:
             return f"{self.person.email_address} => {self.question.question} => {self.answer}"
         else:
-            return f"{self.person.email_address} => {self.question.question}"
+            return f"{self.person.email_address} => {self.question.question} => No response"
 
     def emails(self): return Email.objects.filter(person_question=self)
 

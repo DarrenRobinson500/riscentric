@@ -34,9 +34,9 @@ def set_current_company(request, id):
     user, company = get_user(request)
     user.company = Company.objects.get(id=id)
     user.save()
-    if len(user.company.pings()) > 0:
-        return redirect('pings')
-    return redirect('file_upload')
+    # if len(user.company.pings()) > 0:
+    #     return redirect('pings')
+    return redirect('company_edit')
 
 # -----------------------------
 # --------AUTHENTICATION=------
@@ -234,6 +234,8 @@ def ping_delete(request, id):
 def ping_create(request):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
+
+
     context = {'company': company}
     return render(request, "ping_create.html", context)
 
@@ -257,6 +259,7 @@ def survey(request, email_id):
     question = email.question
     person_question = email.person_question
     person_question.viewed = True
+    if person_question.answer == "None": person_question.answer = "Viewed"
     person_question.save()
     print("Survey person:", person)
     print("Survey question:", question)
@@ -367,8 +370,6 @@ def file_to_db(request, id):
         df_to_db_people(df_people, company)
         db_people = Person.objects.filter(company=company)
         db_people = pd.DataFrame.from_records(db_people.values())
-        new_order = ['id', 'company_id', 'ref', 'question', 'choices']  # Specify the desired order
-        db_people = db_people.reindex(columns=new_order)
         db_people['company_id'] = db_people['company_id'].map(company_names)
         db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
         data_set.append(("People", file_object.html_people, db_people_html))

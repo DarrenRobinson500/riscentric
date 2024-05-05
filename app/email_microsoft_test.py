@@ -33,14 +33,9 @@ account = Account(
 
 
 def send_microsoft_email(email, recipients, send=True):
-
-    # div_1 = "<div style='text-align: center;'>"
-    # image = "<img src='cid:image' width='300'>"
-
-    # context = {"email": email}
     print("Email:", email)
-    # html_template = div_1 + image + render_to_string('email_template.html', context)
     html_template = email.company.email_html()
+    print(html_template)
     html_template = html_template.replace("{{ email.id }}", str(email.id))
     html_template = html_template.replace("{{ ping.name }}", email.ping.name)
 

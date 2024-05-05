@@ -7,7 +7,7 @@
 <form class="form-inline my-2 my-lg-0" method="POST">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-yak" style="background-color: {{ company.colour }};">{% if mode == "New" %}Create{% else %}Update{% endif %}</button>
+    <button type="submit" class="btn btn-yak" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">{% if mode == "New" %}Create{% else %}Update{% endif %}</button>
 </form>
 
 <hr>
