@@ -4,18 +4,18 @@
 <h1>Create Next Ping</h1>
 
 <table class='table table-hover table-bordered'>
-    <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};"><th>First Name</th><th>Last Question</th><th>Last Answer</th><th>Logic => Next Question</th></tr>
-    {% for person_question in ping.person_questions %}
+    <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};"><th>First Name</th><th>Last Question</th><th>Last Answer</th><th>Next Question</th></tr>
+    {% for person in company.people %}
     <tr>
-        <td>{{ person_question.person.email_address }}</td>
-        <td>{{ person_question.question.question }}</td>
-        <td>{{ person_question.answer }}</td>
-        <td>{{ person_question.next_question_logic }}</td>
+        <td>{{ person.email_address }}</td>
+        <td>{{ person.last_question.question.question }}</td>
+        <td>{{ person.last_question.answer }}</td>
+        <td>{{ person.next_question_logic }}</td>
     </tr>
     {% endfor %}
 </table>
 <a class='btn btn-yak btn-sm' href="{% url 'ping_save' ping.id %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Save Ping</a>
-<hr>
+
 <h1>Logic</h1>
 
 <table class='table table-hover table-bordered'>

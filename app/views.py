@@ -231,24 +231,29 @@ def ping_delete(request, id):
     ping.delete()
     return redirect('pings')
 
-def ping_create(request):
+def ping_create(request, id):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
-
-
-    context = {'company': company}
+    ping = Ping.objects.get(id=id)
+    context = {'company': company, 'ping': ping}
     return render(request, "ping_create.html", context)
 
-def ping_save(request):
+def ping_save(request, id):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
-    name = f"Round {len(company.pings()) + 1}"
-    ping = Ping(name=name, company=company)
+    last_ping = Ping.objects.get(id=id)
+    print("Ping Save:", last_ping)
+    number = last_ping.number + 1
+    name = f"Round {number}"
+    ping = Ping(name=name, company=company, number=number)
     ping.save()
-    for person in company.people():
-        logic = person.next_question_logic()
+    for person_question in last_ping.person_questions():
+        logic = person_question.next_question_logic()
         if logic:
-            Person_Question(company=company, ping=ping, person=person, question=logic.next_question).save()
+            print("Ping Save:", person_question)
+            Person_Question(company=company, ping=ping, person=person_question.person, question=logic.next_question).save()
+        else:
+            print("Ping Save - No logic")
     return redirect('pings')
 
 def survey(request, email_id):

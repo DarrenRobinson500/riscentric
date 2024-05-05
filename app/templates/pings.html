@@ -7,24 +7,37 @@
     <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};"><th>Name</th><th>Person/Questions</th><th>Actions</th></tr>
     {% for ping in pings %}
     <tr>
-        <td><a href="{% url 'ping' ping.id %}">{{ ping.name | capfirst }}</a></td>
         <td>
-            <ul>
-                {% for person_question in ping.person_questions %}
-                    <li>{{ person_question }}</li>
-                {% endfor %}
-            </ul>
+            <a href="{% url 'ping' ping.id %}">{{ ping.name | capfirst }}</a><br><br>
         </td>
         <td>
-            <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'ping' ping.id %}">Select Ping</a><br><br>
-            <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'download' ping.id %}">Download Results</a><br><br>
+            <table class='table table-striped table-hover table-bordered'>
+                <tr style="color: {{company.colour_text}}; background-color: {{ company.lighter_colour }};">
+                    <th>Email</th><th>Question</th><th>Answer</th>
+                </tr>
+                {% for person_question in ping.person_questions %}
+                <tr>
+                    <td>{{ person_question.details.0 }}</td>
+                    <td>{{ person_question.details.1 }}</td>
+                    <td>{{ person_question.details.2 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </td>
+        <td>
+            <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'ping' ping.id %}">Select Ping</a>
+            <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'download' ping.id %}">Download Results</a>
+            {% if ping == company.last_ping %}
+                <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'ping_create' ping.id %}">Create Next Ping</a>
+            {% endif %}<hr>
+
             <a class='btn btn-sm btn-danger' href="{% url 'ping_delete' ping.id %}">Delete Ping</a>
         </td>
     </tr>
     {% endfor %}
 </table>
 
-<a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'ping_create' %}">Create Next Ping</a>
+
 <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'download' %}">Download Results</a>
 
 

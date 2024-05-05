@@ -24,9 +24,10 @@ class Company(Model):
     def question_sets(self): return QuestionSet.objects.filter(company=self)
     def files(self): return File.objects.filter(company=self).order_by("name").order_by("-time_stamp")
     def people(self): return Person.objects.filter(company=self).order_by("email_address")
-    def pings(self): return Ping.objects.filter(company=self).order_by("name")
+    def pings(self): return Ping.objects.filter(company=self).order_by("number")
     def logic(self): return Logic.objects.filter(company=self).order_by("last_question")
     def questions(self): return Question.objects.filter(company=self).order_by("ref")
+    def last_ping(self): return self.pings().last()
 
     def email_html_web(self):
         return self.email_html(web_site=True)
@@ -91,16 +92,6 @@ class Person(Model):
     def last_question(self):
         result = Person_Question.objects.filter(person=self).order_by('-answer_date').first()
         return result
-    def next_question_logic(self):
-        last_person_question = Person_Question.objects.filter(person=self).order_by('-answer_date').first()
-        last_question = last_person_question.question
-        last_answer = last_person_question.answer
-        if last_answer:
-            last_answer = last_answer.strip()
-        else:
-            last_answer = "None"
-        logic = Logic.objects.filter(company=self.company, last_question=last_question, last_answer=last_answer).first()
-        return logic
 
 class QuestionSet(Model):
     model_name = "question_set"
@@ -188,6 +179,7 @@ class Ping(Model):
     name = TextField(null=True, blank=True)
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
     sent = BooleanField(default=False)
+    number = IntegerField(default=1)
 
     def person_questions(self):
         return Person_Question.objects.filter(ping=self).filter(company=self.company).order_by('person')
@@ -262,7 +254,20 @@ class Person_Question(Model):
         else:
             return f"{self.person.email_address} => {self.question.question} => No response"
 
+    def details(self):
+        return self.person.email_address, self.question.question, self.answer
+
     def emails(self): return Email.objects.filter(person_question=self)
+    def next_question_logic(self):
+        # last_person_question = Person_Question.objects.filter(person=self).order_by('-answer_date').first()
+        last_question = self.question
+        last_answer = self.answer
+        if last_answer:
+            last_answer = last_answer.strip()
+        else:
+            last_answer = "None"
+        logic = Logic.objects.filter(company=self.company, last_question=last_question, last_answer=last_answer).first()
+        return logic
 
 class Send(Model):
     model_name = "send"
