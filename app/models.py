@@ -45,6 +45,19 @@ class Company(Model):
         result = div_1 + image + main + end
         return result
 
+    def lighter_colour(self):
+        amount = 0.3
+        hex_color = self.colour.lstrip('#')  # Remove the '#' if present
+        red, green, blue = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+
+        # Calculate the new RGB values
+        new_red = min(255, int(red + 255 * amount))
+        new_green = min(255, int(green + 255 * amount))
+        new_blue = min(255, int(blue + 255 * amount))
+
+        # Convert back to hex format
+        new_hex_color = f"#{new_red:02X}{new_green:02X}{new_blue:02X}"
+        return new_hex_color
 
 # class UserM(AbstractUser):
 #     company = ForeignKey(Company, null=True, blank=True, on_delete=SET_NULL)
