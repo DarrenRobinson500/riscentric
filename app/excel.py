@@ -47,10 +47,20 @@ def df_to_db_people(df, company):
             record.delete()
 
 def df_to_db_questions(df, company):
-    general = General.objects.all().first()
     for index, row in df.iterrows():
-        if not Question.objects.filter(company=company, question=row['question']).exists():
-            Question(company=company, question=row['question'], choices=row['choices']).save()
+        ref = index
+        if 'ref' in row:
+            ref = row['ref']
+        existing_record = Question.objects.filter(company=company, question=row['question']).first()
+        if existing_record:
+            print("DF to DB Questions (existing):\n", row, ref)
+            existing_record.ref = ref
+            existing_record.choices = row['choices']
+            existing_record.save()
+        else:
+            Question(company=company, ref=ref, question=row['question'], choices=row['choices']).save()
+
+    # Delete existing records that aren't in the spreadsheet
     existing_records = Question.objects.filter(company=company)
     for record in existing_records:
         if not record.question in df['question'].values:

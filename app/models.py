@@ -114,11 +114,11 @@ def add_lines(text, gap=40):
 class Question(Model):
     model_name = "question"
     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+    ref = CharField(max_length=20, blank=True, default="")
     question = TextField(null=True, blank=True)
     choices = CharField(max_length=255, blank=True)
-    ref = CharField(max_length=20, blank=True, default="")
 
-    def __str__(self): return self.question
+    def __str__(self): return f"{self.ref}. {self.question}"
     def choices_split(self):
         return self.choices.split(',')
     def choices_and_next_question(self):

@@ -202,8 +202,8 @@ def people(request):
 def questions(request):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
-    questions = Question.objects.filter(company=company)
-    context = {'company': company, 'questions': questions}
+    # questions = Question.objects.filter(company=company)
+    context = {'company': company}
     return render(request, "questions.html", context)
 
 # -----------------
@@ -367,6 +367,8 @@ def file_to_db(request, id):
         df_to_db_people(df_people, company)
         db_people = Person.objects.filter(company=company)
         db_people = pd.DataFrame.from_records(db_people.values())
+        new_order = ['id', 'company_id', 'ref', 'question', 'choices']  # Specify the desired order
+        db_people = db_people.reindex(columns=new_order)
         db_people['company_id'] = db_people['company_id'].map(company_names)
         db_people_html = db_people.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
         data_set.append(("People", file_object.html_people, db_people_html))
@@ -376,6 +378,7 @@ def file_to_db(request, id):
         df_to_db_questions(df_questions, company)
         db = Question.objects.filter(company=company)
         db = pd.DataFrame.from_records(db.values())
+        db = db.sort_values(by=['ref'])
         db = convert_id_to_string(db)
         db_questions_html = db.to_html(classes=['table', 'table-striped', 'table-center'], index=True, justify='left', formatters=formatters)
         data_set.append(("Questions", file_object.html_questions, db_questions_html))
