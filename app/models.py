@@ -15,7 +15,7 @@ class Company(Model):
     name = CharField(max_length=255, null=True, blank=True)
     icon = ImageField(null=True, blank=True, upload_to="images/")
     colour = CharField(max_length=10, null=True, blank=True, default="#A6C9EC")
-    colour_text = CharField(max_length=10, null=True, blank=True, default="#ffffff")
+    colour_text = CharField(max_length=10, null=True, blank=True, default="#000000")
     email_subject = TextField(null=True, blank=True, default="We want your view")
     email_text = TextField(null=True, blank=True, default=standard_email_text)
     active = BooleanField(default=True)

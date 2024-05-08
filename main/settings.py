@@ -76,17 +76,33 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # }
 
 # Database
+# Original
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'riscentric',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': 'riscentric.c12aui88y3oh.ap-southeast-2.rds.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
+
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_PASSWORD_2 = os.environ.get("DB_PASSWORD_2")
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'riscentric',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'riscentric.c12aui88y3oh.ap-southeast-2.rds.amazonaws.com',
+        'NAME': 'database1',
+        'USER': 'db_user',
+        'PASSWORD': DB_PASSWORD_2,
+        'HOST': 'database1.c12aui88y3oh.ap-southeast-2.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
+
 # DB_PASSWORD = os.environ.get("DB_PASSWORD")
 # DATABASES = {
 #     'default': {
