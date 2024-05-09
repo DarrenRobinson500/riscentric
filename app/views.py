@@ -85,6 +85,11 @@ def company_new(request):
     if not request.user.is_authenticated: return redirect("login")
     riscentric = Company.objects.filter(name="Riscentric").first()
     general = General.objects.all().first()
+    if general is None:
+        general = General(name="main")
+        general.save()
+    else:
+        print(general)
     company = riscentric
     general.save()
     form = NewCompanyForm()
