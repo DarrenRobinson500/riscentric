@@ -6,14 +6,14 @@ def email_send_logic(ping):
     ping.save()
 
     for person_question in ping.person_questions():
-        print("Email: ", person_question.answer)
+        # print("Email: ", person_question.answer)
         if person_question.answer in ["None", "Viewed", "Failed to send"]:
             person = person_question.person
             question = person_question.question
             to = person_question.person.email_address
             email = Email(company=ping.company, ping=ping, person=person, question=question, person_question=person_question, email_date=datetime.now())
             email.save()
-            print("Created email:", email)
+            # print("Created email:", email)
             send_microsoft_email(email, [to], send=True)
         else:
             print("Send did not send:", person_question.answer)

@@ -1,6 +1,6 @@
 {% extends 'base.html'%}
 {% block content %}
-<h1>Emails: '{{ ping.name | capfirst }}' Ping ID: {{ ping.id }}</h1>
+<h1>Emails: '{{ ping.name | capfirst }}'</h1>
 <a class='btn btn-yak btn-sm' href="{% url 'ping' ping.id %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Back to '{{ ping.name | capfirst }}'</a>
 {% for question in ping.questions %}
 <h3>{{ question.question }}</h3>
@@ -12,7 +12,7 @@
                 {% if email.ping == ping %}
                 <tr>
                     <td>{{ email.id }}</td>
-                    <td>{{ email.person.email_address }} Ping ID: {{ email.ping.id }}</td>
+                    <td>{{ email.person.email_address }}</td>
                     <td>{{ email.email_date }}</td>
                     <td>
                         {% if email.answer %}

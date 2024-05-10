@@ -30,9 +30,8 @@ account = Account(
 )
 
 def send_microsoft_email(email, recipients, send=True):
-    print("Email:", email)
     html_template = email.company.email_html()
-    print(html_template)
+    # print(html_template)
     html_template = html_template.replace("{{ email.id }}", str(email.id))
     html_template = html_template.replace("{{ ping.name }}", email.ping.name)
 
@@ -60,6 +59,7 @@ def send_microsoft_email(email, recipients, send=True):
             message.attach(image_attachment)
         if send:
             message.send_and_save()
+        print("Email Sent:", email)
     except:
         email.answer = "Failed to send"
         email.save()
