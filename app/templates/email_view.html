@@ -1,21 +1,28 @@
 {% extends 'base.html'%}
 {% block content %}
-<h1>Emails: '{{ ping.name | capfirst }}'</h1>
+<h1>Emails: '{{ ping.name | capfirst }}' Ping ID: {{ ping.id }}</h1>
 <a class='btn btn-yak btn-sm' href="{% url 'ping' ping.id %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Back to '{{ ping.name | capfirst }}'</a>
 {% for question in ping.questions %}
 <h3>{{ question.question }}</h3>
     <table class='table table-hover table-bordered'>
         <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};">
-            <th>ID</th><th>Person</th><th>Email</th><th>Result</th><th>Date Sent</th><th>Answer</th><th>Answer Date</th>{% if admin == True %}<th>Provide Answer</th>{% endif %}
+            <th>ID</th><th>Email</th><th>Date Sent</th><th>Answer</th><th>Answer Date</th>{% if admin == True %}<th>Provide Answer</th>{% endif %}
         </tr>
             {% for email in question.responses %}
+                {% if email.ping == ping %}
                 <tr>
                     <td>{{ email.id }}</td>
-                    <td>{{ email.person.name }}</td>
-                    <td>{{ email.person.email_address }}</td>
-                    <td>{{ email.email_result }}</td>
+                    <td>{{ email.person.email_address }} Ping ID: {{ email.ping.id }}</td>
                     <td>{{ email.email_date }}</td>
-                    <td>{% if email.answer %}{{ email.answer }}{% endif %}</td>
+                    <td>
+                        {% if email.answer %}
+                            {{ email.answer }}
+                        {% endif %}
+                        {% if email.answer == "Failed to send" %}
+                            <hr>
+                            <a href="{% url 'email_resend' email.id %}" class='btn btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Resend</a>
+                        {% endif %}
+                    </td>
                     <td>{% if email.answer_date %}{{ email.answer_date }}{% endif %}</td>
                     {% if admin == True %}
                     <td>
@@ -27,6 +34,7 @@
                     </td>
                     {% endif %}
                 </tr>
+                {% endif %}
             {% endfor %}
     </table>
 {% endfor %}

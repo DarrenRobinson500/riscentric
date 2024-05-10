@@ -9,6 +9,7 @@ from django.db import models
 import openpyxl as xl
 
 standard_email_text = 'Your views can help protect our customers. <br><a style = "color:black;" href="http://riscourage.com/survey/{{ email.id }}"><u>Click here to answer the question for {{ ping.name }}</u></a><br><br><a style = "color:black;" href="http://127.0.0.1:8000/survey/{{ email.id }}"><u>Click here to answer the question for {{ ping.name }} [Local]</u></a><br><br><span style="font-size: 8px">This email and your response are confidential. Please do not forward to anyone else. Your response is anonymous and cannot be viewed by your organisation.<span>"'
+standard_thankyou_text = "<h1>Thank you for providing your view.</h1>"
 
 class Company(Model):
     model_name = "company"
@@ -18,10 +19,11 @@ class Company(Model):
     colour_text = CharField(max_length=10, null=True, blank=True, default="#000000")
     email_subject = TextField(null=True, blank=True, default="We want your view")
     email_text = TextField(null=True, blank=True, default=standard_email_text)
+    thankyou_text = TextField(null=True, blank=True, default=standard_thankyou_text)
     active = BooleanField(default=True)
 
     def __str__(self): return self.name
-    def question_sets(self): return QuestionSet.objects.filter(company=self)
+    # def question_sets(self): return QuestionSet.objects.filter(company=self)
     def files(self): return File.objects.filter(company=self).order_by("name").order_by("-time_stamp")
     def people(self): return Person.objects.filter(company=self).order_by("email_address")
     def pings(self): return Ping.objects.filter(company=self).order_by("number")
@@ -51,7 +53,10 @@ class Company(Model):
     def lighter_colour(self):
         amount = 0.3
         hex_color = self.colour.lstrip('#')  # Remove the '#' if present
-        red, green, blue = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+        try:
+            red, green, blue = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+        except:
+            red, green, blue = int(hex_color[0:1], 16), int(hex_color[1:2], 16), int(hex_color[2:3], 16)
 
         # Calculate the new RGB values
         new_red = min(255, int(red + 255 * amount))
@@ -93,29 +98,29 @@ class Person(Model):
         result = Person_Question.objects.filter(person=self).order_by('-answer_date').first()
         return result
 
-class QuestionSet(Model):
-    model_name = "question_set"
-    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
-    name = TextField(null=True, blank=True)
-    date = DateField(auto_now=False, null=True)
-    class Meta:
-        verbose_name = "Question Set"
-        verbose_name_plural = "Question Sets"
-    def __str__(self): return "[" + str(self.date) + "] " + self.name[0:50]
-    def questions(self): return Question.objects.filter(question_set=self).order_by("schedule_date")
-
-def add_lines(text, gap=40):
-    l = len(text)
-    r = range(gap, l, gap)
-    for x in r:
-        position, found = x, False
-        while not found and position < l:
-            if text[position] == " ":
-                text = text[:position] + "X" + text[position + 1:]
-                found = True
-            position += 1
-    # print("Add lines:", text)
-    return text
+# class QuestionSet(Model):
+#     model_name = "question_set"
+#     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+#     name = TextField(null=True, blank=True)
+#     date = DateField(auto_now=False, null=True)
+#     class Meta:
+#         verbose_name = "Question Set"
+#         verbose_name_plural = "Question Sets"
+#     def __str__(self): return "[" + str(self.date) + "] " + self.name[0:50]
+#     def questions(self): return Question.objects.filter(question_set=self).order_by("schedule_date")
+#
+# def add_lines(text, gap=40):
+#     l = len(text)
+#     r = range(gap, l, gap)
+#     for x in r:
+#         position, found = x, False
+#         while not found and position < l:
+#             if text[position] == " ":
+#                 text = text[:position] + "X" + text[position + 1:]
+#                 found = True
+#             position += 1
+#     # print("Add lines:", text)
+#     return text
 
 class Question(Model):
     model_name = "question"
@@ -134,14 +139,14 @@ class Question(Model):
         result = []
         for choice in choices:
             choice = choice.strip()
-            print(f"Logic Search: LQ:'{self}' LA:'{choice}'")
+            # print(f"Logic Search: LQ:'{self}' LA:'{choice}'")
 
             logic = Logic.objects.filter(company=self.company, last_question=self, last_answer=choice).first()
             if not logic:
                 logic = Logic(company=self.company, last_question=self, last_answer=choice)
                 logic.save()
             next_question = logic.next_question
-            print(f"Choices: '{self.question}' '{choice}' '{next_question}'")
+            # print(f"Choices: '{self.question}' '{choice}' '{next_question}'")
             result.append((choice, next_question, logic.id))
 
         return result
@@ -284,7 +289,7 @@ class Email(Model):
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     # send = ForeignKey(Send, null=True, blank=True, on_delete=CASCADE)
     email_result = CharField(max_length=3, null=True, blank=True)
-    email_date = DateTimeField(auto_now_add=True)
+    email_date = DateTimeField()
     answer = TextField(null=True, blank=True)
     answer_date = DateTimeField(null=True, blank=True)
     def __str__(self): return f"Email to {self.person} ({self.email_date})"

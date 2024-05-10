@@ -325,13 +325,15 @@ def email(request):
 
 def email_send(request, id):
     if not request.user.is_authenticated: return redirect("login")
-    # general = General.objects.all().first()
     ping = Ping.objects.get(id=id)
-    send_email_logic(ping)
-    person_question = ping.person_questions().first()
-    context = {'company': ping.company, 'person': person_question.person, 'question': person_question.question, 'email': person_question.emails().first()}
+    email_send_logic(ping)
     return redirect('email_view', ping.id, False)
-    # return render(request, "email_template.html", context)
+
+def email_resend(request, id):
+    if not request.user.is_authenticated: return redirect("login")
+    email = Email.objects.get(id=id)
+    email_resend_logic(email)
+    return redirect('email_view', email.ping.id, False)
 
 def email_view(request, id, admin):
     if not request.user.is_authenticated: return redirect("login")
@@ -484,12 +486,18 @@ def new(request, model_str):
     user, company = get_user(request)
     model, form = get_model(model_str)
     if request.method == 'POST':
-        form = form(request.POST, company=company)
+        if model_str == "logic":
+            form = form(request.POST, company=company)
+        else:
+            form = form(request.POST)
         if form.is_valid():
             new = form.save()
             if model_str == "period": new.create_files()
             return redirect('list_view', model_str)
-    form = form(company=company)
+    if model_str == "logic":
+        form = form(company=company)
+    else:
+        form = form()
     context = {'company': company, 'form':form, 'model_str': model_str, 'mode': 'New'}
     return render(request, 'new.html', context)
 

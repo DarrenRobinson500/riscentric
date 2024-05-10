@@ -1,8 +1,6 @@
 from exchangelib import Account, Configuration, Identity, OAUTH2, OAuth2Credentials
 from exchangelib import Configuration, Account, DELEGATE
 from exchangelib import Message, Mailbox, FileAttachment, HTMLBody
-from django.template.loader import render_to_string
-from datetime import datetime
 import os
 
 email_address = os.environ.get("email_address")
@@ -30,7 +28,6 @@ account = Account(
     autodiscover=False,
     config=config
 )
-
 
 def send_microsoft_email(email, recipients, send=True):
     print("Email:", email)
@@ -66,18 +63,6 @@ def send_microsoft_email(email, recipients, send=True):
     except:
         email.answer = "Failed to send"
         email.save()
-
-
-    # account.send_message(
-    #     subject=subject,
-    #     body=body,
-    #     to_recipients=recipients
-    # )
-
-
-    # msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-    # msg.attach_alternative(html_content, "text/html")
-    # result = msg.send()
 
     account.protocol.close()
 

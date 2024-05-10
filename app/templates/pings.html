@@ -26,6 +26,7 @@
         </td>
         <td>
             <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'ping' ping.id %}">Select Ping</a>
+            <a class='btn btn-yak btn-sm' href="{% url 'email_view' ping.id False %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">View emails</a>
             <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'download' ping.id %}">Download Results</a>
             {% if ping == company.last_ping or pings|length == 1 %}
                 <a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'ping_create' ping.id %}">Create Next Ping</a>
