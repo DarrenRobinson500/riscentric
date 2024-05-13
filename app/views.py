@@ -271,8 +271,8 @@ def survey(request, email_id):
     person_question.viewed = True
     if person_question.answer == "None": person_question.answer = "Viewed"
     person_question.save()
-    print("Survey person:", person)
-    print("Survey question:", question)
+    # print("Survey person:", person)
+    # print("Survey question:", question)
     context = {"email": email, 'company': company}
     return render(request, "survey.html", context)
 

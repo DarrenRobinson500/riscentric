@@ -9,6 +9,8 @@ from django.db import models
 import openpyxl as xl
 
 standard_email_text = 'Your views can help protect our customers. <br><a style = "color:black;" href="http://riscourage.com/survey/{{ email.id }}"><u>Click here to answer the question for {{ ping.name }}</u></a><br><br><a style = "color:black;" href="http://127.0.0.1:8000/survey/{{ email.id }}"><u>Click here to answer the question for {{ ping.name }} [Local]</u></a><br><br><span style="font-size: 8px">This email and your response are confidential. Please do not forward to anyone else. Your response is anonymous and cannot be viewed by your organisation.<span>"'
+standard_survey_pre = "<div style='text-align: center;'><h4>Please answer the following question with regards to your role and experience in your organisation:</h4><br>"
+standard_survey_post = "<br><br><h4>Your response is kept confidential. Only the aggregated data is analysed and shared with your organisation.</h4></div>"
 standard_thankyou_text = "<h1>Thank you for providing your view.</h1>"
 
 class Company(Model):
@@ -19,6 +21,8 @@ class Company(Model):
     colour_text = CharField(max_length=10, null=True, blank=True, default="#000000")
     email_subject = TextField(null=True, blank=True, default="We want your view")
     email_text = TextField(null=True, blank=True, default=standard_email_text)
+    survey_text_pre = TextField(null=True, blank=True, default=standard_survey_pre)
+    survey_text_post = TextField(null=True, blank=True, default=standard_survey_post)
     thankyou_text = TextField(null=True, blank=True, default=standard_thankyou_text)
     active = BooleanField(default=True)
 
@@ -260,6 +264,10 @@ class Person_Question(Model):
             return f"{self.person.email_address} => {self.question.question} => No response"
 
     def details(self):
+        if self.question is None:
+            return self.person.email_address, "No question", ""
+        if self.answer is None:
+            return self.person.email_address, self.question.question, "No answer"
         return self.person.email_address, self.question.question, self.answer
 
     def emails(self): return Email.objects.filter(person_question=self)

@@ -10,13 +10,15 @@ class NewCompanyForm(ModelForm):
 class CompanyForm(ModelForm):
     class Meta:
         model = Company
-        fields = ("name", "colour", "colour_text", "email_subject", "email_text", "thankyou_text")
+        fields = ("name", "colour", "colour_text", "email_subject", "email_text", "survey_text_pre", "survey_text_post", "thankyou_text")
         widgets = {
             "name": TextInput(attrs={"class": "form-control", "placeholder": ""}),
             "colour": TextInput(attrs={"class": "form-control", "placeholder": ""}),
             "colour_text": TextInput(attrs={"class": "form-control", "placeholder": ""}),
             "email_subject": TextInput(attrs={"class": "form-control", "placeholder": ""}),
             "email_text": Textarea(attrs={"class": "form-control", "placeholder": ""}),
+            "survey_text_pre": Textarea(attrs={"class": "form-control", "placeholder": ""}),
+            "survey_text_post": Textarea(attrs={"class": "form-control", "placeholder": ""}),
             "thankyou_text": TextInput(attrs={"class": "form-control", "placeholder": ""}),
         }
 

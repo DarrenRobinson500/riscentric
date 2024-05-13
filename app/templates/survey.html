@@ -1,12 +1,8 @@
 {% extends 'base.html'%}
 {% block content %}
 
-<div style='text-align: center;'>
+{{ company.survey_text_pre | safe }}
 
-    <h4>
-        Please answer the following question with regards to your role and experience in your organisation:
-    </h4>
-    <br>
     <h1>
         {{ email.question.question }}
     </h1>
@@ -14,10 +10,6 @@
     {% for choice in email.question.choices_split %}
         <a href="{% url 'survey_complete' email.id choice %}" class='btn btn-yak' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">{{ choice }}</a>
     {% endfor %}
-    <br><br>
-    <h4>
-        Your response is kept confidential. Only the aggregated data is analysed and shared with your organisation.
-    </h4>
-</div>
+{{ company.survey_text_post | safe }}
 
 {% endblock %}
