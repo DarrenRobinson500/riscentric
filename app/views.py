@@ -218,7 +218,8 @@ def questions(request):
 def pings(request):
     if not request.user.is_authenticated: return redirect("login")
     user, company = get_user(request)
-    pings = Ping.objects.filter(company=company).order_by('name')
+    pings = Ping.objects.filter(company=company).order_by('number')
+    print("Pings", pings)
     context = {'pings': pings, 'company': company}
     return render(request, "pings.html", context)
 

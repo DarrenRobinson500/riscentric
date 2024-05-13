@@ -190,6 +190,8 @@ class Ping(Model):
     sent = BooleanField(default=False)
     number = IntegerField(default=1)
 
+    def __str__(self): return f"{self.name} ({self.company})"
+
     def person_questions(self):
         return Person_Question.objects.filter(ping=self).filter(company=self.company).order_by('person')
     def questions(self):
