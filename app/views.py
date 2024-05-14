@@ -140,9 +140,6 @@ def download(request, ping_id=None):
     writer = ExcelWriter('Responses.xlsx', engine='xlsxwriter')
 
     model = Person_Question
-    print("Saving:", model)
-
-    general = General.objects.all().first()
 
     if ping_id:
         ping = Ping.objects.get(id=ping_id)
@@ -153,15 +150,20 @@ def download(request, ping_id=None):
     df = pd.DataFrame(list(data.values()))
 
     company = df.apply(get_company, axis=1)
+    print(type(company))
     ping = df.apply(get_ping, axis=1)
     person = df.apply(get_person, axis=1)
     area = df.apply(get_area, axis=1)
     question = df.apply(get_question, axis=1)
-    df = pd.concat([company, ping, person, area, question, df], axis=1)
+    send_date = df.apply(get_send_date, axis=1)
+    answer_date = df.apply(get_answer_date, axis=1)
+    # df.columns = ['Company', 'Ping', 'Email', 'Area']
+    df = pd.concat([company, ping, person, area, question, df, send_date, answer_date], axis=1)
+    df.rename(columns={0: 'Company', 1: 'Ping', 2: 'Email', 3: 'Team', 4: 'Question', 5: 'Send Date', 6: 'Answer Date'}, inplace=True)
+    print("df.columns")
     print(df.columns)
-    if 'answer_date' in df.columns:
-    # df = df.drop(["answer_date",], axis=1)
-        del df['answer_date']
+    if 'answer_date' in df.columns: del df['answer_date']
+    if 'send_date' in df.columns: del df['send_date']
 
     today = datetime.today().strftime("%B %d, %Y") + "X"
     df.to_excel(writer, sheet_name=f'{today}', index=False)
@@ -188,6 +190,20 @@ def get_area(row):
 def get_question(row):
     try: return Question.objects.get(id=row['question_id']).question
     except: return ""
+def get_answer_date(row):
+    try:
+        date_string = row['answer_date'].strftime('%Y-%m-%d %H:%M:%S')
+        print(type(date_string))
+        return date_string
+    except:
+        return ""
+def get_send_date(row):
+    try:
+        date_string = row['send_date'].strftime('%Y-%m-%d %H:%M:%S')
+        print(type(date_string))
+        return date_string
+    except:
+        return ""
 
 # ---------------------
 # ---- People ------

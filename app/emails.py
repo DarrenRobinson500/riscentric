@@ -8,6 +8,8 @@ def email_send_logic(ping):
     for person_question in ping.person_questions():
         # print("Email: ", person_question.answer)
         if person_question.answer in ["None", "Viewed", "Failed to send"]:
+            person_question.send_date = datetime.now()
+            person_question.save()
             person = person_question.person
             question = person_question.question
             to = person_question.person.email_address

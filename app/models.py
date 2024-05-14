@@ -258,6 +258,7 @@ class Person_Question(Model):
     question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
     viewed = BooleanField(default=False)
     answer = TextField(null=True, blank=True, default="None")
+    send_date = DateTimeField(null=True, blank=True)
     answer_date = DateTimeField(null=True, blank=True)
     def __str__(self):
         if self.answer:
