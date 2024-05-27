@@ -346,11 +346,29 @@ def email_send(request, id):
     email_send_logic(ping)
     return redirect('email_view', ping.id, False)
 
+def email_send_ind(request, id):
+    if not request.user.is_authenticated: return redirect("login")
+    person_question = Person_Question.objects.get(id=id)
+    ping = person_question.ping
+    email_send_ind_logic(person_question)
+    return redirect('ping', ping.id)
+
 def email_resend(request, id):
     if not request.user.is_authenticated: return redirect("login")
     email = Email.objects.get(id=id)
     email_resend_logic(email)
     return redirect('email_view', email.ping.id, False)
+
+def email_resend_multi(request, id):
+    if not request.user.is_authenticated: return redirect("login")
+    ping = Ping.objects.get(id=id)
+    person_questions = Person_Question.objects.filter(ping=ping, send_date__isnull=True)
+    for person_question in person_questions:
+        email_send_ind_logic(person_question)
+    #
+    # email = Email.objects.get(id=id)
+    # email_resend_logic(email)
+    return redirect('ping', ping.id)
 
 def email_view(request, id, admin):
     if not request.user.is_authenticated: return redirect("login")

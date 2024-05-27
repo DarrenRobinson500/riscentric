@@ -46,7 +46,9 @@ urlpatterns = [
 
     path("email", email, name="email"),
     path("email_send/<id>", email_send, name="email_send"),
+    path("email_send_ind/<id>", email_send_ind, name="email_send_ind"),
     path("email_resend/<id>", email_resend, name="email_resend"),
+    path("email_resend_multi/<id>", email_resend_multi, name="email_resend_multi"),
     path("email_view/<id>/<admin>", email_view, name="email_view"),
 
     path("new/<model_str>", new, name="new"),

@@ -20,6 +20,21 @@ def email_send_logic(ping):
         else:
             print("Send did not send:", person_question.answer)
 
+def email_send_ind_logic(person_question):
+    if person_question.answer in ["None", "Viewed", "Failed to send"]:
+        person_question.send_date = datetime.now()
+        person_question.save()
+        person = person_question.person
+        question = person_question.question
+        to = person_question.person.email_address
+        email = Email(company=person_question.company, ping=person_question.ping, person=person, question=question, person_question=person_question, email_date=datetime.now())
+        email.save()
+        # print("Created email:", email)
+        send_microsoft_email(email, [to], send=True)
+    else:
+        print("Send did not send:", person_question.answer)
+
+
 def email_resend_logic(email):
     email.answer = "None"
     email.email_date = datetime.now()

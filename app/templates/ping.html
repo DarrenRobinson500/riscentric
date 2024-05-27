@@ -33,7 +33,15 @@
                                 <td>{{ person_question.details.0 }}</td>
                                 <td>{{ person_question.details.1 }}</td>
                                 <td>{{ person_question.details.2 }}</td>
-                                <td>{{ person_question.send_date }}</td>
+                                <td>
+                                    {{ person_question.send_date }}
+                                    {% if not person_question.send_date %}
+                                        <hr>
+                                        <a href="{% url 'email_send_ind' person_question.id %}" class='btn btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Send</a>
+                                    {% endif %}
+
+
+                                </td>
                             </tr>
                             {% endfor %}
                         </table>
@@ -53,6 +61,8 @@
 <a class='btn btn-yak' href="{% url 'email_send' ping.id %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Send emails</a>
 <a class='btn btn-yak' href="{% url 'email_view' ping.id False %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">View emails</a>
 <a class='btn btn-yak' href="{% url 'email_view' ping.id True %}" style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Update Responses</a>
+
+<a href="{% url 'email_resend_multi' ping.id %}" class='btn' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Resend emails with no send date</a>
 
 
 {% endblock %}
