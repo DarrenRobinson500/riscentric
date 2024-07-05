@@ -42,6 +42,19 @@ class LinkForm(ModelForm):
             ),
         }
 
+class FreeTextForm(ModelForm):
+    class Meta:
+        model = Person_Question_R
+        fields = ("answer", )
+        labels = {
+            "answer": "",
+        }
+        widgets = {
+            "answer": Textarea(attrs={"class": "form-control", "placeholder": "", "rows": 3}),
+        }
+
+
+
 class LogicForm(ModelForm):
     class Meta:
         model = Logic

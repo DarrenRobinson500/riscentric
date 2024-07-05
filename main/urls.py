@@ -31,6 +31,13 @@ urlpatterns = [
     path("download", download, name="download"),
     path("download/<ping_id>", download, name="download"),
 
+    path("final_email_1", final_email_1, name="final_email_1"),
+    path("final_email_2_send_ind/<id>", final_email_2_send_ind, name="final_email_2_send_ind"),
+    path("final_email_3_survey/<id>", final_email_3_survey, name="final_email_3_survey"),
+    path("final_email_4_answer/<person_question_id>/<answer_string>", final_email_4_answer,
+         name="final_email_4_answer"),
+    path("download_r", download_r, name="download_r"),
+
     path("files", files, name="files"),
     path("file_upload", file_upload, name="file_upload"),
     # path("file_link", file_link, name="file_link"),

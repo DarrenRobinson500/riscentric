@@ -13,6 +13,8 @@ standard_survey_pre = "<div style='text-align: center;'><h4>Please answer the fo
 standard_survey_post = "<br><br><h4>Your response is kept confidential. Only the aggregated data is analysed and shared with your organisation.</h4></div>"
 standard_thankyou_text = "<h1>Thank you for providing your view.</h1>"
 
+standard_email_text_r = 'Your views can help protect our customers. <br><a style = "color:black;" href="http://riscourage.com/final_email_3_survey/{{ email.id }}"><u>Click here to review your experience</u></a><br><br><a style = "color:black;" href="http://127.0.0.1:8000/final_email_3_survey/{{ email.id }}"><u>Click here to review your experience [Local]</u></a><br><br><span style="font-size: 8px">This email and your response are confidential. Please do not forward to anyone else. Your response is anonymous and cannot be viewed by your organisation.<span>"'
+
 class Company(Model):
     model_name = "company"
     name = CharField(max_length=255, null=True, blank=True)
@@ -25,6 +27,13 @@ class Company(Model):
     survey_text_post = TextField(null=True, blank=True, default=standard_survey_post)
     thankyou_text = TextField(null=True, blank=True, default=standard_thankyou_text)
     active = BooleanField(default=True)
+
+    # Fields for the final review
+    email_subject_r = TextField(null=True, blank=True, default="We want your view")
+    email_text_r = TextField(null=True, blank=True, default=standard_email_text_r)
+    survey_text_pre_r = TextField(null=True, blank=True, default=standard_survey_pre)
+    survey_text_post_r = TextField(null=True, blank=True, default=standard_survey_post)
+    thankyou_text_r = TextField(null=True, blank=True, default=standard_thankyou_text)
 
     def __str__(self): return self.name
     # def question_sets(self): return QuestionSet.objects.filter(company=self)
@@ -53,6 +62,26 @@ class Company(Model):
         end = "</div>"
         result = div_1 + image + main + end
         return result
+
+    def email_html_web_r(self):
+        return self.email_html_r(web_site=True)
+
+    def email_html_r(self, web_site=False):
+        div_1 = "<div style='text-align: center;'>"
+
+        if web_site:
+            image = ""
+        else:
+            image = "<img src='cid:image' width='600'><br>"
+
+        if self.email_text_r:
+            main = self.email_text_r
+        else:
+            main = "<b>No company specific text provided</b>"
+        end = "</div>"
+        result = div_1 + image + main + end
+        return result
+
 
     def lighter_colour(self):
         amount = 0.3
@@ -101,7 +130,19 @@ class Person(Model):
     def last_question(self):
         result = Person_Question.objects.filter(person=self).order_by('-answer_date').first()
         return result
-
+    def review_emails(self):
+        result = Email_r.objects.filter(person=self)
+        return result
+    def questions_r(self):
+        questions_r = Person_Question_R.objects.filter(company=self.company, person=self, answer__isnull=False)
+        return questions_r
+    def next_question_r(self):
+        next_question_r = Person_Question_R.objects.filter(company=self.company, person=self, answer="None").first()
+        return next_question_r
+    def has_answered_r(self):
+        all_questions_r = Person_Question_R.objects.filter(company=self.company, person=self)
+        not_answered_questions_r = Person_Question_R.objects.filter(company=self.company, person=self, answer="None")
+        return len(all_questions_r) > len(not_answered_questions_r)
 # class QuestionSet(Model):
 #     model_name = "question_set"
 #     company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
@@ -305,6 +346,36 @@ class Email(Model):
     answer_date = DateTimeField(null=True, blank=True)
     def __str__(self): return f"Email to {self.person} ({self.email_date})"
 
+class Email_r(Model):
+    model_name = "email"
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+    person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
+    email_result = CharField(max_length=3, null=True, blank=True)
+    email_date = DateTimeField()
+    answer_date = DateTimeField(null=True, blank=True)
+    def __str__(self): return f"Email (review) to {self.person} ({self.email_date})"
+
+class Person_Question_R(Model):
+    model_name = "person_question_r"
+    company = ForeignKey(Company, null=True, blank=True, on_delete=CASCADE)
+    person = ForeignKey(Person, null=True, blank=True, on_delete=CASCADE)
+    email = ForeignKey(Email_r, null=True, blank=True, on_delete=CASCADE)
+    question = ForeignKey(Question, null=True, blank=True, on_delete=CASCADE)
+    viewed = BooleanField(default=False)
+    free_text = BooleanField(default=False)
+    answer = TextField(null=True, blank=True, default="None")
+    send_date = DateTimeField(null=True, blank=True)
+    answer_date = DateTimeField(null=True, blank=True)
+    def __str__(self):
+        try:
+            if not self.person:
+                return f"{self.question.question} => {self.answer}"
+            if self.answer:
+                return f"{self.person.email_address} => {self.question.question} => {self.answer}"
+            else:
+                return f"{self.person.email_address} => {self.question.question} => No response"
+        except:
+            return "CONFUSED"
 
 # class Response(Model):
 #     time = DateTimeField(auto_now_add=True)
@@ -422,4 +493,4 @@ class File(Model):
         self.document.delete()
         super().delete(*args, **kwargs)
 
-all_models = [General, Company, Person, Question, Ping, Person_Question, Email, File, CustomUser, To_do, Logic]
+all_models = [General, Company, Person, Question, Ping, Person_Question, Person_Question_R, Email, Email_r, File, CustomUser, To_do, Logic]

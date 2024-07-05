@@ -1,0 +1,26 @@
+{% extends 'base.html'%}
+{% block content %}
+
+{{ company.survey_text_pre | safe }}
+
+    <h1>
+        {{ person_question.question.question }}
+    </h1>
+
+    {% for choice in person_question.question.choices_split %}
+        {% if choice == "Free Text" %}
+              <form method="post">
+                {% csrf_token %}
+                {{ form }}
+                <br>
+                <button type="submit" class="btn btn-yak" style="background-color: {{ company.colour }};">Provide Feedback</button>
+              </form>
+
+        {% else %}
+            <a href="{% url 'final_email_4_answer' person_question.id choice %}" class='btn btn-yak' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">{{ choice }}</a>
+        {% endif %}
+    {% endfor %}
+
+{{ company.survey_text_post | safe }}
+
+{% endblock %}

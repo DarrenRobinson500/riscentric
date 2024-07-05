@@ -1,0 +1,37 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Final Email</h1>
+{{ message }} <br><br>
+<table class='table table-hover table-bordered'>
+    <tr style="color: {{company.colour_text}}; background-color: {{ company.colour }};"><th>Email</th><th>Area</th><th>Send</th></tr>
+    {% for person in people %}
+    <tr>
+        <td>
+            {{ person.email_address }}
+            {% if person.questions_r %}
+                <ul>
+                {% for question in person.questions_r %}
+                    <li>{{ question }}</li>
+                {% endfor %}
+                </ul>
+                Next question: {{ person.next_question_r }}<br>
+            {% endif %}
+            Has answered: {{ person.has_answered_r }}
+
+        </td>
+        <td>{{ person.area }}</td>
+        <td>
+            {% for email in person.review_emails %}
+                Date sent: {{ email.email_date }}<br>
+            {% endfor %}
+            <a href="{% url 'final_email_2_send_ind' person.id %}" class='btn btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};">Send</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a class='btn btn-yak btn-sm' style="color: {{company.colour_text}}; background-color: {{ company.colour }};" href="{% url 'download_r' %}">Download Results</a>
+<br><br>
+
+{% endblock %}

@@ -91,7 +91,6 @@ WSGI_APPLICATION = 'main.wsgi.application'
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_PASSWORD_2 = os.environ.get("DB_PASSWORD_2")
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

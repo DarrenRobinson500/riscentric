@@ -34,6 +34,11 @@ def email_send_ind_logic(person_question):
     else:
         print("Send did not send:", person_question.answer)
 
+def email_send_review_logic(person):
+    email = Email_r(company=person.company, person=person, email_date=datetime.now())
+    email.save()
+    send_microsoft_email_r(email, send=True)
+    return email
 
 def email_resend_logic(email):
     email.answer = "None"

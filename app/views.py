@@ -379,6 +379,106 @@ def email_view(request, id, admin):
     context = {"ping": ping, 'company': company, "admin": admin}
     return render(request, "email_view.html", context)
 
+# ------------------------
+# ---- Final Emails ------
+# ------------------------
+
+def final_email_1(request):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    people = Person.objects.filter(company=company)
+    answered = 0
+    for person in people:
+        if person.has_answered_r(): answered += 1
+    message = f"{answered} of {len(people)} people have responded."
+    context = {'company': company, 'people': people, "message": message}
+    return render(request, "final_email_1.html", context)
+
+def final_email_2_send_ind(request, id):
+    if not request.user.is_authenticated: return redirect("login")
+    person = Person.objects.get(id=id)
+    email = email_send_review_logic(person)
+    questions = Question.objects.filter(company=person.company, ref="R")
+    for question in questions:
+        existing = Person_Question_R.objects.filter(company=person.company, person=person, question=question)
+        if not existing:
+            free_text = False
+            if question.choices == "Free Text": free_text = True
+            Person_Question_R(company=person.company, person=person, question=question, email=email, free_text=free_text, send_date=datetime.now().date()).save()
+    return redirect('final_email_1')
+
+def final_email_3_survey(request, id):
+    print("Final email 3")
+    email = Email_r.objects.get(id=id)
+    if request.method == "POST":
+        person_question = Person_Question_R.objects.filter(email=email, free_text=True).first()
+        print("Person question:", person_question)
+        form = FreeTextForm(request.POST, instance=person_question)
+        if form.is_valid():
+            print("Saved form")
+            form.save()
+            context = {"email": email, 'company': email.company}
+            return render(request, "final_email_5_thank_you.html", context)
+    person_question = email.person.next_question_r()
+    if not person_question:
+        context = {"email": email, 'company': email.company}
+        return render(request, "final_email_5_thank_you.html", context)
+    person_question.answer = ""
+    person_question.save()
+    form = FreeTextForm(instance=person_question)
+
+    context = {"form": form, "company": email.company, "email": email, "person": email.person, "person_question": person_question}
+
+    return render(request, "final_email_3_survey.html", context)
+
+def final_email_4_answer(request, person_question_id, answer_string):
+    print("Final email 4")
+    person_question = Person_Question_R.objects.get(id=person_question_id)
+    person_question.answer = answer_string
+    person_question.answer_date = datetime.now()
+    person_question.save()
+    email = person_question.email
+    email.answer = answer_string
+    email.save()
+    person_question.save()
+
+    next_question = person_question.person.next_question_r()
+    if next_question:
+        return redirect("final_email_3_survey", email.id)
+    else:
+        context = {"email": email, 'company': email.company}
+        return render(request, "final_email_5_thank_you.html", context)
+
+def download_r(request):
+    if not request.user.is_authenticated: return redirect("login")
+    user, company = get_user(request)
+    writer = ExcelWriter('Responses_r.xlsx', engine='xlsxwriter')
+
+    model = Person_Question_R
+    data = model.objects.filter(company=company)
+    df = pd.DataFrame(list(data.values()))
+
+    company = df.apply(get_company, axis=1)
+    person = df.apply(get_person, axis=1)
+    area = df.apply(get_area, axis=1)
+    question = df.apply(get_question, axis=1)
+    send_date = df.apply(get_send_date, axis=1)
+    answer_date = df.apply(get_answer_date, axis=1)
+    df = pd.concat([company, person, area, question, df, send_date, answer_date], axis=1)
+    df.rename(columns={0: 'Company', 1: 'Email', 2: 'Area', 3: 'Question', 4: 'Send Date', 5: 'Answer Date'}, inplace=True)
+    if 'answer_date' in df.columns: del df['answer_date']
+    if 'send_date' in df.columns: del df['send_date']
+
+    today = datetime.today().strftime("%B %d, %Y") + "X"
+    df.to_excel(writer, sheet_name=f'{today}', index=False)
+    writer.close()
+
+    # Create an HttpResponse object with the Excel file
+    response = HttpResponse(open('Responses_r.xlsx', 'rb').read(), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Responses_r.xlsx"'
+
+    return response
+
 # ---------------------------
 # ---- File Management ------
 # ---------------------------
