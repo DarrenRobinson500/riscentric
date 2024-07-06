@@ -1,7 +1,7 @@
 {% extends 'base.html'%}
 {% block content %}
 
-{{ company.survey_text_pre | safe }}
+{{ company.survey_text_pre_r | safe }}
 
     <h1>
         {{ person_question.question.question }}
@@ -21,6 +21,6 @@
         {% endif %}
     {% endfor %}
 
-{{ company.survey_text_post | safe }}
+{{ company.survey_text_post_r | safe }}
 
 {% endblock %}

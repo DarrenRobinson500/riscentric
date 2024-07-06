@@ -400,6 +400,7 @@ def final_email_2_send_ind(request, id):
     email = email_send_review_logic(person)
     questions = Question.objects.filter(company=person.company, ref="R")
     for question in questions:
+        print(f"Adding question '{question}' to '{person}")
         existing = Person_Question_R.objects.filter(company=person.company, person=person, question=question)
         if not existing:
             free_text = False
