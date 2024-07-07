@@ -137,11 +137,19 @@ class Person(Model):
         questions_r = Person_Question_R.objects.filter(company=self.company, person=self, answer__isnull=False)
         return questions_r
     def next_question_r(self):
-        next_question_r = Person_Question_R.objects.filter(company=self.company, person=self, answer="None").first()
+        remaining_questions = Person_Question_R.objects.filter(company=self.company, person=self)
+        next_question_r = None
+        for question in remaining_questions:
+            if question.answer == "None" or question.answer == "" or question.answer is None:
+                next_question_r = question
+                break
+
+        # next_question_r = Person_Question_R.objects.filter(company=self.company, person=self, answer="None").first()
         return next_question_r
     def has_answered_r(self):
         all_questions_r = Person_Question_R.objects.filter(company=self.company, person=self)
         not_answered_questions_r = Person_Question_R.objects.filter(company=self.company, person=self, answer="None")
+        none_answered_questions_r = Person_Question_R.objects.filter(company=self.company, person=self, answer="None")
         return len(all_questions_r) > len(not_answered_questions_r)
 # class QuestionSet(Model):
 #     model_name = "question_set"
